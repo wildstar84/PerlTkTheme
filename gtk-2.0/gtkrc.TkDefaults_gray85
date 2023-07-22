@@ -447,10 +447,6 @@ style "notebook" {
 style "separator" {
 	xthickness = 2
 	ythickness = 2
-	#GtkSeparatorMenuItem::horizontal-padding = 2
-	#GtkWidget::wide-separators = 2
-	#GtkWidget::separator-width = 2
-	#GtkWidget::separator-height = 2
 	engine "pixmap" {
 		image {
 			function = VLINE
@@ -461,7 +457,6 @@ style "separator" {
 		image {
 			function = HLINE
 			recolorable = TRUE
-		      	#file     = "../img2/colorset5/frameStandAlone.png"
 			file = "../img/handleSeparatorHorizontal.png"
 			stretch = TRUE
 		}
