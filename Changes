@@ -1,0 +1,7 @@
+1.00	2023/07/21
+	* Take Jean-Pierre Bucciol's "OneStepBack" theme 
+	(http://www.vide.memoire.free.fr/perso/OneStepBack/onestepback.php),
+	add a few tweak ideas from Jos Vanriswic's CDETHEME 
+	(https://www.gnome-look.org/p/1231025) and modify lots of things to get it 
+	to look as close as possible to my Perl/Tk apps, touch up the docs, and 
+	release to GitHub on an unsuspecting world.

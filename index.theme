@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=X-GNOME-Metatheme
+Name=PerlTkTheme
+Comment=A Classic Perl/Tcl/Tk look Theme for GTK-3 & GTK-2
+Encoding=UTF-8
+
+[X-GNOME-Metatheme]
+GtkTheme=PerlTkTheme

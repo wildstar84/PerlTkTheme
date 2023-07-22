@@ -1,0 +1,18 @@
+The separate directory "img-dark/" was created (by Jim Turner) to allow for 
+different images for "dark" versions of the themes.  Most of the "dark version" 
+images are simply symlinks to their corresponding "light" versions in the 
+original image directory "img/".  The ones that require different dark and 
+light versions (mostly arrow buttons) have a "normal" version that is black in 
+the middle and a "disabled" version that is light-grey or white in the middle.  
+This is hard to read in "dark" themes, so we cross-symlinked the "normal" ones 
+here to the corresponding "disabled" ones there (and vice versa) so that in 
+either theme style, the "normal" ones stand out significantly more than their 
+"disabled" counterparts.
+
+An unrelated but additional image feature (added by Jim Turner) are all the 
+images that end in "-tk.png".  These replace the corresponding image files that 
+lack the "-tk" and represent checkboxes and radio-buttons in Perl/Tk style 
+(which this theme is all about).  If the user wishes to use the original 
+images instead, they should edit the gtk-css file and remove the "-tk" from 
+the image urls for which they wish to use the original image (all the original 
+images remain in the "img/" directory and are symlinked from "img-dark/".

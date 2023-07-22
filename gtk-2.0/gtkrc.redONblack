@@ -1,0 +1,604 @@
+#================================================#
+# PerlTkTheme theme; gtk3 part                   #
+# A derived work by (c) Jim Turner, June 2023    #
+# from OneStepBack theme: gtk2 part              #
+# jpsb: July 2015 - nov 2020                     #
+#================================================#
+
+#======================================#
+# Color definitions
+#
+# KEYS:
+#
+# base_color:                 @tk_background           #default bg.
+# lighter_color:              @tk_activeBackground     #day: brightest color, night: very bright
+# maybelesslighter_color:     @tkx_selectedActiveBackground     #day: lighter, night: darker
+# darker_color:               @tk_troughColor          #always darker than base.
+# text_selected_bg_color:     @tkx_selectedActiveBackground
+# softerForeground:           #day: black, night: slightly off-white (for text)
+# tkx_entry_disabledBackground:  #hardcoded in Stock Perl/Tk to #d9d9d9!
+#                             Recommended alternatives:  @base_color
+# red, green, black:          #not used, for debugging only.
+#======================================#
+
+gtk-color-scheme = "tk_background:black
+tk_foreground:red
+tk_troughColor:#000000
+tk_highlightBackground:black
+tk_insertBackground:white;
+tk_selectBackground:#000000
+tk_activeBackground:#555555
+tk_disabledForeground:#3f3f3f
+tkx_entry_disabledBackground:#ff0000
+tk_readonlyBackground:#ff0000
+softerForeground:#ff0000
+tkx_slightContrast:#1c1c1c
+tkx_selectedActiveBackground:#555555
+scale_color:#00ff00
+lighter_color:#555555
+maybelesslighter_color:#555555
+base_color:black
+darker_color:#000000
+active_color:#555555
+red:#ff0000
+green:#ffff00
+black:#000000
+"
+
+#======================================#
+# Derived colors
+#
+# KEYS:
+#
+# button_selected_bg_color:   @tk_disabledForeground
+# text_selected_bg_color:     @tkx_selectedActiveBackground
+# menuitem_selected_bg_color: @tk_activeBackground
+# listitem_selected_bg_color: @tk_disabledForeground
+# tab_normal_background:      @tkx_slightContrast
+# tab_nonselected_background: @base_color
+# *fg_color:                  @softerForeground
+#======================================#
+
+gtk-color-scheme = "button_selected_bg_color:#3f3f3f
+text_selected_bg_color:#555555
+text_selected_fg_color:red
+menuitem_selected_bg_color:#555555
+menuitem_selected_fg_color:#ff0000
+listitem_selected_bg_color:#3f3f3f
+listitem_selected_fg_color:#ff0000
+tab_normal_background:#1c1c1c
+tab_nonselected_background:black
+"
+
+#======================================#
+# Styles
+#======================================#
+
+#JWT:NOTE:  PRELIGHT == hover over!
+
+style "default" {
+
+    base[NORMAL]        = @base_color
+    text[NORMAL]        = @softerForeground
+    bg[NORMAL]          = @base_color
+    fg[NORMAL]          = @tk_foreground
+
+    base[PRELIGHT]      = @active_color
+    text[PRELIGHT]      = @softerForeground
+    bg[PRELIGHT]        = @active_color
+    fg[PRELIGHT]        = @tk_foreground
+
+    base[SELECTED]      = @listitem_selected_bg_color  #NEEDED FOR TK::HMListbox-LIKE SELECTIONS!
+    text[SELECTED]      = @listitem_selected_fg_color
+    bg[SELECTED]        = @tk_disabledForeground
+    fg[SELECTED]        = @lighter_color
+
+    base[ACTIVE]        = @listitem_selected_bg_color
+    text[ACTIVE]        = @listitem_selected_fg_color
+    bg[ACTIVE]          = @button_selected_bg_color
+    fg[ACTIVE]          = @tk_foreground
+
+    base[INSENSITIVE]   = @tkx_entry_disabledBackground
+    text[INSENSITIVE]   = @tk_disabledForeground
+    bg[INSENSITIVE]     = @darker_color
+    fg[INSENSITIVE]     = @tk_disabledForeground
+
+	xthickness = 2
+	ythickness = 2
+	GtkPaned::handle_full_size = 10
+	GtkPaned::handle-size = 10
+	GtkHPaned::handle-size = 10
+	GtkVPaned::handle-size = 10
+	GtkWidget::focus-line-width = 1
+	GtkWidget::link-color = @tk_foreground
+	GtkWidget::visited-link-color = @darker_color
+	GtkScrollbar::min-slider-length = 30
+
+#    GtkScrollbar::has_backward_stepper = 0
+#    GtkScrollbar::has_forward_stepper = 1
+#    GtkScrollbar::has_secondary_forward_stepper = 0
+#    GtkScrollbar::has_secondary_backward_stepper = 1
+
+	engine "pixmap" {
+		#from Jos Vanriswic's cdetheme v1.3:
+		image {
+			function    = HANDLE
+			file = "../img-dark/handleSeparatorHorizontal.png"
+			orientation = HORIZONTAL
+			#SOME WAY TO RIGHT ALIGN THIS?
+			overlay_file    = "../img-dark/handleButtonHorizontal.png"
+			overlay_stretch = FALSE
+		}
+		image {
+			function    = HANDLE
+			file = "../img-dark/handleSeparatorVertical.png"
+			orientation = VERTICAL
+			overlay_file    = "../img-dark/handleButtonVertical.png"
+			overlay_stretch = FALSE
+		}
+	}
+}
+
+style "button" {
+	bg[NORMAL]          = @tkx_slightContrast
+	bg[PRELIGHT]        = @active_color
+}
+
+style "frame" {
+	bg[NORMAL]          = @lighter_color   #JUST THE FRAME'S BORDER!
+#	fg[NORMAL]          = @lighter_color
+}
+
+style "scalebar-scrollbar" {
+
+    bg[NORMAL]          = @base_color
+    fg[NORMAL]          = @tk_foreground
+
+    bg[PRELIGHT]        = @active_color
+
+    bg[ACTIVE]          = @darker_color
+
+    engine "pixmap" {
+
+        image {
+            function        = SLIDER
+            state           = NORMAL
+            file            = "../img-dark/scrollbar_horizontal.png"
+            border          = { 2, 2, 2, 2 }
+            stretch         = TRUE
+            overlay_file    = "../img-dark/scrollbar_thumb.png"
+            overlay_stretch = FALSE
+            orientation     = HORIZONTAL
+        }
+        image {
+            function        = SLIDER
+            state           = INSENSITIVE
+            file            = "../img-dark/scrollbar_horizontal.png"
+            border          = { 2, 2, 2, 2 }
+            stretch         = TRUE
+            overlay_file    = "../img-dark/scrollbar_thumb.png"
+            overlay_stretch = FALSE
+            orientation     = HORIZONTAL
+        }
+        image {
+            function        = SLIDER
+            state           = PRELIGHT
+            file            = "../img-dark/scrollbar_horizontal.png"
+            border          = { 2, 2, 2, 2 }
+            stretch         = TRUE
+            overlay_file    = "../img-dark/scrollbar_thumb.png"
+            overlay_stretch = FALSE
+            orientation     = HORIZONTAL
+        }
+        image {
+            function        = SLIDER
+            state           = ACTIVE
+            file            = "../img-dark/scrollbar_horizontal.png"
+            border          = { 2, 2, 2, 2 }
+            stretch         = TRUE
+            overlay_file    = "../img-dark/scrollbar_thumb.png"
+            overlay_stretch = FALSE
+            orientation     = HORIZONTAL
+        }
+        image {
+            function        = SLIDER
+            state           = NORMAL
+            file            = "../img-dark/scrollbar_vertical.png"
+            border          = { 2, 2, 2, 2 }
+            stretch         = TRUE
+            overlay_file    = "../img-dark/scrollbar_thumb.png"
+            overlay_stretch = FALSE
+            orientation     = VERTICAL
+        }
+        image {
+            function        = SLIDER
+            state           = INSENSITIVE
+            file            = "../img-dark/scrollbar_vertical.png"
+            border          = { 2, 2, 2, 2 }
+            stretch         = TRUE
+            overlay_file    = "../img-dark/scrollbar_thumb.png"
+            overlay_stretch = FALSE
+            orientation     = VERTICAL
+        }
+        image {
+            function        = SLIDER
+            state           = PRELIGHT
+            file            = "../img-dark/scrollbar_vertical.png"
+            border          = { 2, 2, 2, 2 }
+            stretch         = TRUE
+            overlay_file    = "../img-dark/scrollbar_thumb.png"
+            overlay_stretch = FALSE
+            orientation     = VERTICAL
+        }
+        image {
+            function        = SLIDER
+            state           = ACTIVE
+            file            = "../img-dark/scrollbar_vertical.png"
+            border          = { 2, 2, 2, 2 }
+            stretch         = TRUE
+            overlay_file    = "../img-dark/scrollbar_thumb.png"
+            overlay_stretch = FALSE
+            orientation     = VERTICAL
+        }
+    }
+}
+
+style "progressbar" {
+
+    bg[NORMAL]          = @darker_color
+    fg[NORMAL]          = @tk_foreground # XXX
+
+    bg[PRELIGHT]        = @scale_color # XXX
+    fg[PRELIGHT]        = @lighter_color
+
+}
+
+style "menuitem" {
+
+    text[NORMAL]        = @softerForeground
+    bg[NORMAL]          = @base_color
+    fg[NORMAL]          = @softerForeground
+
+    text[PRELIGHT]      = @menuitem_selected_fg_color
+    bg[PRELIGHT]        = @menuitem_selected_bg_color
+    fg[PRELIGHT]        = @menuitem_selected_fg_color
+
+    fg[SELECTED]        = @menuitem_selected_fg_color # fg menu sélectionné libre office
+}
+
+style "check-radio" {
+
+    bg[PRELIGHT]        = @base_color
+
+    base[INSENSITIVE]   = @lighter_color
+    text[INSENSITIVE]   = @darker_color
+    fg[INSENSITIVE]     = @base_color
+	engine "pixmap"
+	{
+		# RADIO-BUTTON ICONS:
+		image
+		{
+			function 		= OPTION
+			state 		= NORMAL
+			shadow 		= OUT
+			overlay_file = "../img-dark/radio-unchecked-tk.png"
+			overlay_stretch 	= FALSE
+		}
+#		image
+#		{
+#			function 		= OPTION
+#			state			= PRELIGHT
+#			shadow 		= OUT
+#			overlay_file = "../img-dark/radio-unchecked-tk.png"
+#			overlay_stretch 	= FALSE
+#		}
+#		image
+#		{
+#			function 		= OPTION
+#			state 		= ACTIVE
+#			shadow 		= OUT
+#			overlay_file = "../img-dark/radio-unchecked-tk.png"
+#			overlay_stretch 	= FALSE
+#		}
+		image
+		{
+			function 		= OPTION
+			state 		= INSENSITIVE
+			shadow 		= OUT
+			overlay_file = "../img-dark/radio-disabled-unchecked-tk.png"
+			overlay_stretch 	= FALSE
+		}
+
+		image
+		{
+			function 		= OPTION
+			state 		= NORMAL
+			shadow 		= IN
+			overlay_file = "../img-dark/radio-checked-tk.png"
+			overlay_stretch 	= FALSE
+		}
+#		image
+#		{
+#			function 		= OPTION
+#			state 		= PRELIGHT
+#			shadow 		= IN
+#			overlay_file = "../img-dark/radio-checked-tk.png"
+#			overlay_stretch 	= FALSE
+#		}
+#		image
+#		{
+#			function 		= OPTION
+#			state 		= ACTIVE
+#			shadow 		= IN
+#			overlay_file = "../img-dark/radio-checked-tk.png"
+#			overlay_stretch 	= FALSE
+#		}
+		image
+		{
+			function 		= OPTION
+			state 		= INSENSITIVE
+			shadow 		= IN
+			overlay_file = "../img-dark/radio-disabled-checked-tk.png"
+			overlay_stretch 	= FALSE
+		}
+
+		# CHECKBOX ICONS:
+		image
+		{
+			function 		= CHECK
+			state 		= NORMAL
+			shadow 		= OUT
+			overlay_file = "../img-dark/check-unchecked-tk.png"
+					overlay_stretch 	= FALSE
+		}
+#		image
+#		{
+#			function 		= CHECK
+#			state 		= PRELIGHT
+#			shadow 		= OUT
+#			overlay_file = "../img-dark/check-unchecked-tk.png"
+#					overlay_stretch 	= FALSE
+#		}
+#		image
+#		{
+#			function 		= CHECK
+#			state 		= ACTIVE
+#			shadow 		= OUT
+#			overlay_file = "../img-dark/check-unchecked-tk.png"
+#					overlay_stretch 	= FALSE
+#		}
+		image
+		{
+			function 		= CHECK
+			state 		= INSENSITIVE
+			shadow 		= OUT
+			overlay_file = "../img-dark/check-disabled-unchecked-tk.png"
+					overlay_stretch 	= FALSE
+		}
+
+		image
+		{
+			function 		= CHECK
+			state 		= NORMAL
+			shadow 		= IN
+			overlay_file = "../img-dark/check-checked-tk.png"
+					overlay_stretch 	= FALSE
+		}
+#		image
+#		{
+#			function 		= CHECK
+#			state 		= PRELIGHT
+#			shadow 		= IN
+#			overlay_file = "../img-dark/check-checked-tk.png"
+#					overlay_stretch 	= FALSE
+#		}
+#		image
+#		{
+#			function 		= CHECK
+#			state 		= ACTIVE
+#			shadow 		= IN
+#			overlay_file = "../img-dark/check-checked-tk.png"
+#					overlay_stretch 	= FALSE
+#		}
+		image
+		{
+			function 		= CHECK
+			state 		= INSENSITIVE
+			shadow 		= IN
+			overlay_file = "../img-dark/check-disabled-checked-tk.png"
+					overlay_stretch 	= FALSE
+		}
+
+		image
+		{
+			function 	= FLAT_BOX
+			stretch	= TRUE
+			file 		= "../img-dark/menuitem-transparent.png"
+			border 	= {0,0,0,0}
+		}
+	}
+}
+
+style "menubar" {
+
+    fg[PRELIGHT]        = @menuitem_selected_fg_color  # menu sélectionné geogebra
+    fg[SELECTED]        = @menuitem_selected_fg_color # menu sélectionné thunderbird
+}
+
+style "paned" {
+
+    bg[PRELIGHT]        = @base_color   # séparateurs mobiles hover
+
+}
+
+style "gimp-loadingbar" {
+
+    bg[PRELIGHT]        = @scale_color   # loadingbar de gimp !
+
+}
+
+style "notebook" {
+    # DOESN'T WORK!: bg[PRELIGHT]        = @active_color   # pour variantes de couleur
+    bg[ACTIVE]          = @tab_nonselected_background   # pour variantes de couleur
+    bg[NORMAL]          = @tab_normal_background   # pour variantes de couleur
+}
+
+#from Jos Vanriswic's cdetheme v1.3:
+style "separator" {
+	xthickness = 2
+	ythickness = 2
+	#GtkSeparatorMenuItem::horizontal-padding = 2
+	#GtkWidget::wide-separators = 2
+	#GtkWidget::separator-width = 2
+	#GtkWidget::separator-height = 2
+	engine "pixmap" {
+		image {
+			function = VLINE
+			recolorable = TRUE
+			file = "../img-dark/handleSeparatorVertical.png"
+			stretch = TRUE
+		}
+		image {
+			function = HLINE
+			recolorable = TRUE
+		      	#file     = "../img2/colorset5/frameStandAlone.png"
+			file = "../img-dark/handleSeparatorHorizontal.png"
+			stretch = TRUE
+		}
+	}
+}
+
+style "entry" {
+
+    base[PRELIGHT]      = @text_selected_bg_color
+    text[PRELIGHT]      = @text_selected_fg_color
+
+    base[SELECTED]      = @text_selected_bg_color
+    text[SELECTED]      = @text_selected_fg_color
+
+    base[ACTIVE]        = @text_selected_bg_color
+    text[ACTIVE]        = @text_selected_fg_color
+}
+
+style "combobox" {
+
+    text[PRELIGHT]      = @softerForeground
+
+}
+
+#======================================#
+# Styles for testing
+#======================================#
+
+style "red" {
+
+    base[NORMAL]        = "red"
+    text[NORMAL]        = "red"
+    fg[NORMAL]          = "red"
+    bg[NORMAL]          = "red"
+
+    base[PRELIGHT]      = "red"
+    text[PRELIGHT]      = "red"
+    bg[PRELIGHT]        = "red"
+    fg[PRELIGHT]        = "red"
+
+    base[SELECTED]      = "red"
+    text[SELECTED]      = "red"
+    bg[SELECTED]        = "red"
+    fg[SELECTED]        = "red"
+
+    base[ACTIVE]        = "red"
+    text[ACTIVE]        = "red"
+    bg[ACTIVE]          = "red"
+    fg[ACTIVE]          = "red"
+
+    base[INSENSITIVE]   = "red"
+    text[INSENSITIVE]   = "red"
+    bg[INSENSITIVE]     = "red"
+    fg[INSENSITIVE]     = "red"
+
+}
+
+style "test" {
+
+    base[NORMAL]        = "aqua"
+    text[NORMAL]        = "green"
+    bg[NORMAL]          = "magenta"
+    fg[NORMAL]          = "blue"
+
+    base[PRELIGHT]      = "green"
+    text[PRELIGHT]      = "red"
+    bg[PRELIGHT]        = "lime"
+    fg[PRELIGHT]        = "maroon"
+
+    base[SELECTED]      = "navy"
+    text[SELECTED]      = "red"
+    bg[SELECTED]        = "olive"
+    fg[SELECTED]        = "purple"
+
+    base[ACTIVE]        = "red"
+    text[ACTIVE]        = "green"
+    bg[ACTIVE]          = "teal"
+    fg[ACTIVE]          = "yellow"
+
+    base[INSENSITIVE]   = "purple"
+    text[INSENSITIVE]   = "green"
+    bg[INSENSITIVE]     = "yellow"
+    fg[INSENSITIVE]     = "white"
+
+}
+
+#======================================#
+# Widgets
+#======================================#
+
+class "*" style "default"
+
+#NOTE:  WIDGETS SEEM TO MATCH THE LAST MATCHING CLASS IN THE LIST:
+
+widget_class "*Scale*" style "scalebar-scrollbar"
+widget_class "*Scrollbar*" style "scalebar-scrollbar"
+widget_class "*ProgressBar*" style "progressbar"
+widget_class "*MenuItem*" style "menuitem"
+widget_class "*MenuBar*" style "menubar"
+widget_class "*Paned*" style "paned"
+class "GtkCheck*" style "check-radio"
+class "GtkRadio*" style "check-radio"
+widget_class "*Gimp*Paned*Bar*" style "gimp-loadingbar"
+widget_class "*Notebook*" style "notebook"
+widget_class "*Separator*" style "separator"
+widget_class "*<GtkSeparator>*" style "separator"
+widget_class "*Entry*" style "entry"
+widget_class "*ComboBox*" style "combobox"
+widget_class "*Button*" style "button"
+class "GtkFrame*" style "frame"
+
+#widget_class "*Link*" style "red"
+#widget_class "*Button*" style "red"
+#widget_class "*Separator*" style "red"
+#widget_class "*ToolButton*" style "red"
+#widget_class "*Option*" style "red"
+#widget_class "*ScaleButton*" style "red"
+#widget_class "*List*" style "red"
+#widget_class "*Notebook*" style "test"
+#widget_class "*Frame*" style "red"
+#widget_class "*Label*" style "red"
+#widget_class "*Window" style "red"
+
+# jpsb le 12 sept 2015: bug curieux: la barre d'avancement de xsane ne respecte la couleur demandée qu'après un redémarrage du thème, sinon la couleur est lime !
+
+# qt4 et flèches d'ascenseurs incompatible avec engine "pixmap"
+# barre de prog qt4
+
+#======================================#
+# tweaks
+#======================================#
+# avoid wrong background color in rox when switching theme
+style "rox"
+{
+    base[NORMAL]        = @lighter_color
+    bg[NORMAL]          = @lighter_color
+}
+
+widget_class "*ViewCollection*" style "rox"
+

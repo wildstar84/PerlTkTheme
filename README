@@ -1,0 +1,136 @@
+README PerlTkTheme
+
+==Summary==
+
+- [#1 PerlTkTheme]
+- [#2 Version]
+- [#3 Screenshots]
+- [#4 Installation]
+- [#5 Author]
+- [#6 Licence]
+- [#7 Web pages]
+- [#8 Known Bugs]
+- [#9 Changelog]
+- [#10 Version numbering]
+- [#11 Download]
+- [#12 Current version Package Build for Arch Linux]
+
+==[#1] PerlTkTheme==
+
+PerlTkTheme is a GTK 3 theme with some support for GTKs 2 & 4, with some colors 
+and embossed widgets inspired by the good old classic Perl/Tk, Tcl/Tk and 
+Motif look.  
+
+I'm old and grew up using CDE on Solaris and NextStep / Bowman / AfterStep 
+window managers, and Perl/Tk.  I still use AfterStep as my daily driver on 
+Linux and my code editor, file-manager, and some of my other daily-driver apps 
+I wrote myself in Perl/Tk.  My goal was to try to pretty up ("unify") my 
+desktop a bit, so my other apps (GTK-3 mostly, but also some Qt) wouldn't look 
+so radically different than my in-house Perl/Tk apps!  Since Perl/Tk is ancient 
+and not "themeable" (except for colors) - the Perl/Tk author died in the early 
+2000s before he could add skins/themes, so it is what it is!  Therefore, I 
+sought out a path of less resistance seeking a better theme for GTK (My Qt 
+apps use qt5ct to better align with GTK(2) already, and I ran across one called 
+"OneStepBack" by Jean-Pierre Bucciol 
+(http://www.vide.memoire.free.fr/perso/OneStepBack/onestepback.php) which 
+looked much closer to what I was looking for, and which offered configurable 
+colors (I use Perl/Tk's setPalette feature and .Xdefaults to have all my 
+Perl/Tk apps in a set color-scheme b/c the default is a bland, ugly off-white) 
+and most GTK themes take the Henry Ford attitude that "you can have any color 
+you like as long as it's light-grey or dark-grey!"  I then set about to change 
+the colors to look more like my chosen Perl/Tk color palette and ended up 
+redesigning the color-configuration parameters to better support this (and 
+added a handy color-changer configurator script (configure) to make it easier 
+for other users to change them on the fly to their desired palettes).  I also 
+tweaked some of the widget beveling styles, added a separate "dark" image 
+directory since many images have "normal" and "disabled" versions designed for 
+"light" theme backgrounds, but look much better reversed if you have your 
+theme set to a "dark" background, so I use symlinks there to flip them!  Then I 
+created "-tk" versions of the checkbox and radio-button icons to look like the 
+ones Tk uses:  square beveled checkbox buttons and diamond-shaped radio-buttons.
+
+While we can't match Tk exactly in GTK-3, and only partially in GTK-2, I've 
+gotten close enough to be much better than other GTK themes.  I confess I still 
+prefer the classic "nineties" look (and am used to it after three decades of 
+daily computer programming and usage).  In the nineties, we had CDE and Fvwm, 
+and Windows-XP with beautiful pastel colors and highlights, beveled square 
+buttons that stuck out at you begging to be pressed and that aligned well 
+together in nice neat rows, text fields sunk in or were ridged so you could see 
+where you needed to enter data, etc. before Apple/Micro$oft/Gnome consipired 
+together to give us a flat, drab, grey and uninspiring desktop existance.  
+I find "Top Ten Best Gnome Themes" webpages and they all look alike to me, just 
+different icons - eight of 'em will be the same dark-grey and the other two 
+washed out off-white/light grey.  So, if you're into the "retro" look, or just 
+want something actually different, and want to actually change the color 
+palette (instead of just the foreground and perhaps a cpl. others), or use a 
+lot of Perl/Tk or Tck/Tk apps, then give PerlTkTheme a try today!
+
+==[#2] Version==
+
+Current version is 1.00, released in July 2023.
+
+==[#3] Screenshots==
+
+The screenshots show PerlTkTheme in it's Linux / Tk default palette and my own 
+favorite dark-violet theme, plus several other examples of color-combinations. 
+
+See the Screenshots directory on the GitHub site for now.
+
+==[#4] Installation==
+
+To install the theme, unzip the archive and copy the theme in your theme 
+directory. There is no need for any extra //engine//.
+
+==[#5] Author==
+
+[Jim Turner - turnerjw784(at)yahoo.com].
+
+==[#6] Licence==
+
+This software is copyright (c) 2023, by Jim Turner - all rights reserved.
+You are free to use and modify under terms of the GPL 3 license - see 
+LICENSE file included, provided you agree to be bound by and comply with it's 
+terms.  You are free to release modified versions, provided you change the 
+name, credit me, and state that yours is a derived but separatework of this 
+software created by you and not me!  This software is provided to you as-is.  
+You use this software completely at your own risk and assume all responsibility 
+for any damages you may incur from it's use.  I make no warrantees or 
+guarentees whatsoever regarding quality, satisfaction, or suitability for 
+any purpose, stated or implied.
+
+This is a [GPL 3 https://www.gnu.org/licenses/gpl.txt] free software.  
+Feel free to otherwise change and share the code.
+
+==[#7] Credits==
+
+Derived from Jean-Pierre Bucciol's "OneStepBack" theme
+(http://www.vide.memoire.free.fr/perso/OneStepBack/onestepback.php), with 
+some tweaks borrowed from Jos Vanriswic's cdetheme v1.3 
+(https://www.gnome-look.org/p/1231025) 
+
+==[#8] Web pages==
+
+- [PerlTkTheme theme main page (coming soon!)  https://wildstar84.wordpress.com/PerlTkTheme
+
+- [PerlTkTheme theme download page  https://github.com/wildstar84/PerlTkTheme
+
+- [OneStepBack theme main page and download  http://www.vide.memoire.free.fr/perso/OneStepBack/onestepback.php]
+
+- [CDEtheme main page and download  https://www.gnome-look.org/p/1231025]
+
+==[#9] Known Bugs==
+
+- LibreOffice: Scrollbar arrows are invisible for unknown reasons.
+
+- gtk4 port is very experimental (pretty much whatever came from OneStepBack (I have no gtk4 apps to test with) - contributors welcome!
+
+==[#10] Changelog==
+
+See Changes file.
+
+==[#11] Download==
+
+https://github.com/wildstar84/PerlTkTheme
+
+```
+

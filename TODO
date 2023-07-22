@@ -1,0 +1,14 @@
+Things that still need doing (and possibly volunteer help):
+
+* The GTK-4 vsn. - I don't have any GTK-4 apps to test on.
+
+* Convert the "-tk" versions of the checkbox and radio-button icons' bevel-
+shadowing opacity to reflect the user's chosen theme base (background) color.
+(This needs a graphic-artist volunteer who has more GIMP/Photoshop skills than 
+me to make those parts of the images *partially* transparent & perhaps 
+compress them better for efficiency)!  I had to fight a pitched battle with 
+GIMP already just to get the background parts properly transparent.
+
+* Try to improve the look of the (more feature-limited) GTK-2 version.  It 
+currently has the classic square buttons and (mostly) the right color shades, 
+but could probably use some more work.

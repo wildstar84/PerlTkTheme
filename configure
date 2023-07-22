@@ -1,0 +1,433 @@
+#!/usr/bin/perl
+
+#######################################################################
+#
+#	Palette configurator script for the Perl/Tk GTK-* Theme.
+#	by (c) 2023 - Jim Turner turnerjw784 at yahoo dot com
+#
+#	Users can run this script, providing it with a color# or
+#   color name, ie. "#7f7f7f" or "gray50" as an argument or 
+#	when prompted - to be used as the desired background color
+#	to be set or switched to for the theme.  This script will
+#	then calculate the correct color values for the remaining 
+#	colors that Tk::setPalette provides and some additional
+#	ones needed by the GTK theme.  It will then back up the
+#	user's current theme files (if any) and then regenerate
+#	new copies with the new palette colors configured, and
+#	symlink the theme files (gtk-2.0/gtkrc and gtk-3.0/gtk.css)
+#	to the new versions.  The new color-palette should take
+#	effect as soon as the user launches a new GTK app.
+#	The script also uses Perl/Tk's logic to determine whether
+#	the theme is a "light" theme (defaults to black foreground
+#	colors and icons) or a "dark" theme (defaults to white
+#	foreground and icons), and configures the files accordingly.
+#	In the author's opinion, Perl/Tk uses too high a light
+#	threshold to separate light vs dark themes (100000) resulting
+#	in too many themes being considered dark that may look
+#	better with a black foreground.  The user can change the
+#	threshold number ($TwilightThreshold) if desired.  The author
+#	considers 75000 to be a more pleasing value, but 100000 is set
+#	here by default to keep compatable with stock Perl/Tk.  See
+#	the comments in the generated theme files themselves for how
+#	to make other customizations, some recommended by the author
+#	where some of the stock Perl/Tk settings may not be the most
+#	desirable for many users.
+#
+#	usage:  $>configure [background-color]
+#
+#######################################################################
+
+use File::Copy;
+use Tk;
+use Tk::Widget;
+use Tk::Entry;
+
+use strict;
+use warnings;
+
+my $MW = new MainWindow;
+my $w = $MW->Entry();
+our $VERSION = '1.0';
+our $bummer = ($^O =~ /Win/o && $^O !~ /cygwin/io);
+our $DEBUG=0;   #SET TO 1 (TRUE) FOR EXTRA DEBUGGING OUTPUT.
+our $TwilightThreshold = 100000;  #USER-CONFIGURABLE!
+
+
+$MW->setPalette_extended(@ARGV);
+
+package Tk::Widget;
+
+# NOTE: Derived from blib\lib\Tk\Widget.pm.
+# tk_setPalette (extended for GTK-theme creation by Jim Turner)--
+# Changes the default color scheme for a Tk application by setting
+# default colors in the option database and by modifying all of the
+# color options for existing widgets that have the default value.
+#
+# Arguments:
+# The arguments consist of either a single color name, which
+# will be used as the new background color (all other colors will
+# be computed from this) or an even number of values consisting of
+# option names and values. The name for an option is the one used
+# for the option database, such as activeForeground, not -activeforeground.
+sub setPalette_extended
+{
+	my $w = shift->MainWindow;
+
+	# Just return on monochrome displays, otherwise errors will occur
+	die "..Your display is monochrome (DEPTH=".$w->depth."), no point in continuing!\n"  if ($w->depth == 1);
+	my $tkpalette;
+	unless (defined $_[0]) {
+		if (open (XDEFAULTS, "<$ENV{HOME}/.Xdefaults")) {
+			while (<XDEFAULTS>) {
+				chomp;
+				if (/^\*tkPalette\:\s*(\#[a-fA-F0-9]{6}|[a-zA-Z0-9]+)/) {
+					$tkpalette = $1;
+					print "..I found a palette color in your ~/.Xdefaults file (*tkPalette), use that?:\n";
+					$tkpalette = &promptUser("Enter background color for palette (Ctrl-C to abort):", $tkpalette);
+					last;
+				}
+			}
+			close XDEFAULTS;
+		}
+	}
+	my %new;
+
+	if (defined($tkpalette) && $tkpalette =~ /(\#[a-fA-F0-9]{6}|[a-zA-Z0-9]+)/) {
+	%new = ('background' => $tkpalette);
+	} elsif (defined $_[0]) {
+		%new = (@_ == 1) ? ('background' => $_[0]) : @_;
+	}
+	unless (exists $new{background}) {
+		print "..I couldn't find a Tk palette color in arguments or your ~/.Xdefaults file:\n";
+		$tkpalette = &promptUser("Enter background color for palette (Ctrl-C to abort):", undef);
+		%new = ('background' => $tkpalette)
+				if (defined($tkpalette) && $tkpalette =~ /(\#[a-fA-F0-9]{6}|[a-zA-Z0-9]+)/);
+	}
+
+# Create an array that has the complete new palette. If some colors
+# aren't specified, compute them from other colors that are specified.
+
+	die "must specify a background color"  unless (exists $new{background});
+
+	my @bg = $w->rgb($new{'background'});
+	my($r,$g,$b) = @bg;
+	my $max = $r+1.5*$g+0.5*$b;
+	my ($darkerBg, $lighterBg);
+
+	print "--BG IN=(".$new{'background'}."):  (r=$r= g=$g= b=$b=( MAX=$max TH=$TwilightThreshold=\n"  if ($DEBUG);
+	if (!exists $new{foreground})
+	{
+		# Note that the range of each value in the triple returned by
+		# [winfo rgb] is 0-65535, and your eyes are more sensitive to
+		# green than to red, and more to red than to blue.
+		if ($max > $TwilightThreshold) {
+			$new{'foreground'} = 'black';      #"DAY" (LIGHT) THEME
+		} else {
+			$new{'foreground'} = 'white';      #"NIGHT" (DARK) THEME
+		}
+	}
+	my ($R, $G, $B) = (0,1,2);
+	my @fg = $w->rgb($new{'foreground'});
+	my @light;
+	my @lesslight;
+# Pick a default active background that is lighter than the
+# normal background. To do this, round each color component
+# up by 15% or 1/3 of the way to full white, whichever is
+# greater.
+	foreach my $i (0, 1, 2)
+	{
+		$lesslight[$i] = $light[$i] = $bg[$i]/256;
+		my $inc1 = $light[$i]*15/100;
+		my $inc2 = (255-$light[$i])/3;
+		my $inc3 = $light[$i]*5/100;
+		my $inc4 = (255-$light[$i])/9;
+		$light[$i] += ($inc1 > $inc2) ? $inc1 : $inc2;
+		$lesslight[$i] += ($inc3 > $inc4) ? $inc3 : $inc4;
+		$light[$i] = 255 if ($light[$i] > 255);
+		$lesslight[$i] = 255 if ($lesslight[$i] > 255);
+		$lesslight[$i] -= 8 if ($lesslight[$i] > 236);
+	}
+	my $slightlyLighterBg = sprintf('#%02x%02x%02x',@lesslight);
+	if ($DEBUG) {
+		print "--GREATER LIGHT=(r=$light[$R]= g=$light[$G]= b=$light[$B]=\n";
+		print "---LESSER LIGHT=(r=$lesslight[$R]= g=$lesslight[$G]= b=$lesslight[$B]=\n";
+		print "--MAX=$max=\n";
+		print "--SLIGHTLYLIGHTER=$slightlyLighterBg=\n";
+	}
+	if ($max > $TwilightThreshold)  #"DAY" (LIGHT) THEME:
+	{
+		print "..We're a 'DAY' (light) theme, will use BLACK foreground:\n";
+		$darkerBg = sprintf('#%02x%02x%02x',9*$bg[0]/2560,9*$bg[1]/2560,9*$bg[2]/2560);
+		$lighterBg = sprintf('#%02x%02x%02x',@light);
+		$new{'activeBackground'} = $lighterBg;
+		$new{'lighterBackground'} = $lighterBg;
+		$new{"selectBackground"} = $darkerBg;
+		$new{'selectedActiveBackground'} = $new{'selectBackground'};
+		print "--LIGHTER(LIGHT)=$lighterBg= DARKER(90% of base)!=$darkerBg=\n"  if ($DEBUG);
+	}
+	else                            #"NIGHT" (DARK) THEME:
+	{
+		print "..We're a 'NIGHT' (dark) theme, will use WHITE foreground:\n";
+		$darkerBg = sprintf('#%02x%02x%02x',@light);
+		$lighterBg = sprintf('#%02x%02x%02x',9*$bg[0]/2560,9*$bg[1]/2560,9*$bg[2]/2560);
+		$new{'activeBackground'} = $darkerBg;
+		$new{'lighterBackground'} = $slightlyLighterBg;
+		$new{'selectedActiveBackground'} = $darkerBg;
+		$new{"selectBackground"} = $lighterBg;
+		print "--LIGHTER(90% of base)=$lighterBg= DARKER(LIGHT)=$darkerBg=\n"  if ($DEBUG);
+	}
+	foreach my $i (qw/activeForeground insertBackground selectForeground highlightColor separatorColor/)
+	{
+		$new{$i} = $new{'foreground'}  unless (exists $new{$i});
+	}
+	$new{'disabledForeground'} = sprintf('#%02x%02x%02x',(3*$bg[0]+$fg[0])/1024,(3*$bg[1]+$fg[1])/1024,(3*$bg[2]+$fg[2])/1024);
+	$new{'highContrast'} = sprintf('#%02x%02x%02x',(2*$fg[0]+2*$bg[0])/1024,(2*$fg[1]+2*$bg[1])/1024,(2*$fg[2]+2*$bg[2])/1024);
+#COMMENT OUT NEXT LINE TO RESTORE CLASSIC GRAYISH BACKGROUND ON DISABLED JBrowseEntry ENTRY FIELDS:
+#$new{'disabledBackground'} = $darkerBg  unless (exists $new{'disabledBackground'});
+
+	$new{'highlightBackground'} = $new{'background'};
+	$new{'readonlyBackground'} = $darkerBg;
+	$new{'selectColor'} = '#b03060';
+
+	my @rgbv;
+	if ($max > $TwilightThreshold)
+	{
+		$new{'troughColor'} = $darkerBg;
+		$new{'slightContrast'} = $new{"readonlyBackground"};
+		$new{'bevelShadow'} = $new{'highContrast'};
+		for (my $i=0;$i<=2;$i++) {
+			$rgbv[$i] = (65536-((65536-$bg[$i])/2))/256
+		}
+		$rgbv[0]=$rgbv[1]=$rgbv[2]=230  if ($bg[0] > 53970 || $bg[1] > 53970 || $bg[2] > 53970);
+		$new{'bevelHighlight'} = sprintf('#%02x%02x%02x',($rgbv[0],$rgbv[1],$rgbv[2]));
+	}
+	else
+	{
+		$new{'troughColor'} = $lighterBg;
+		$new{'slightContrast'} = $slightlyLighterBg;
+		$new{'bevelShadow'} = $new{'disabledForeground'};
+		$new{'bevelHighlight'} = $new{'highContrast'};
+	}
+	for (my $i=0;$i<=2;$i++) {
+		$rgbv[$i] = (((21846/37008) * $bg[$i]) + 43690) / 256;
+		$rgbv[$i] = 255  if ($rgbv[$i] > 255);		
+	}
+	$rgbv[0]=$rgbv[1]=$rgbv[2]=230  if ($bg[0] > 53970 || $bg[1] > 53970 || $bg[2] > 53970);
+	$new{'activeBevelHighlight'} = sprintf('#%02x%02x%02x',($rgbv[0],$rgbv[1],$rgbv[2]));
+	for (my $i=0;$i<=2;$i++) {
+		$rgbv[$i] = ((102 * ($bg[$i]/256)) / 256) + 51;
+	}
+	$new{'activeBevelShadow'} = sprintf('#%02x%02x%02x',($rgbv[0],$rgbv[1],$rgbv[2]));
+
+	if ($DEBUG) {
+		my $prefix;
+		foreach my $slot (sort keys %new) {
+			$prefix = ($slot =~ /^(background|activeBackground|activeForeground|highlightBackground|selectBackground|selectForeground|disabledForeground|troughColor)$/o)
+					? '--' : '++';	
+			print "${prefix}$slot:=".$new{$slot}."=\n";
+		}
+	}
+
+#NOW WE NEED TO CREATE A CONFIGURED "gtk.css" and "gtkrc" FILES FOR THE USER:
+
+	(my $colortag = $new{'background'}) =~ s/^\#//;
+
+	#1)  gtk-3.0/gtk.css:
+
+	unless (-e 'gtk-3.0/gtk.css') {
+		my $res = (-e 'gtk-3.0/gtk.css.template')
+				? File::Copy::copy('gtk-3.0/gtk.css.template', 'gtk-3.0/gtk.css')
+				: 0;
+		die "..Could not open gtk-3.0/gtk.css for reading($!), aborting.\n"  unless ($res);
+	}
+	unlink 'gtk-3.0/gtk.css.backup'  if (-e 'gtk-3.0/gtk.css.backup');
+	print "..Backing up existing gtk-3.0/gtk.css to gtk-3.0/gtk.css.backup...\n";
+	File::Copy::copy('gtk-3.0/gtk.css', 'gtk-3.0/gtk.css.backup');
+	open (GTKCSS, "<gtk-3.0/gtk.css.backup") or die "..Could not open gtk-3.0/gtk.css for reading($!), aborting.";
+	print "..Creating new GTK-3 theme file \"gtk-3.0/gtk.css.$colortag\".\n";
+	if (open NEW, ">gtk-3.0/gtk.css.$colortag") {
+		while (<GTKCSS>) {
+			chomp;
+			foreach my $slot (sort keys %new) {
+				next  if ($slot =~ /readonlyBackground/o);  #STOCK Tk DOES NOT SET THIS (USES #d9d9d9)!
+				s/(\@define\-color\s+tkx?\_$slot\s+)(?:\#[a-fA-F0-9]{6}|[a-zA-Z0-9]+)/$1$new{$slot}/;
+			}
+			if ($max > $TwilightThreshold) {  #"DAY" THEME:
+				s#\.\.\/img\-dark\/#\.\.\/img\/#g;
+				s/(\@define\-color\s+softerForeground\s+)(?:\#[a-fA-F0-9]{6}|[a-zA-Z0-9]+)/$1Black/;
+			} else {                          #"NIGHT" THEME:
+				s#\.\.\/img\/#\.\.\/img\-dark\/#g;
+				s/(\@define\-color\s+softerForeground\s+)(?:\#[a-fA-F0-9]{6}|[a-zA-Z0-9]+)/$1\#d9d9d9/;
+			}
+			print NEW "$_\n";
+		}
+		close NEW;
+		print "..Successfully created new theme file \"gtk-3.0/gtk.css.$colortag\".\n";
+		close GTKCSS;
+		sleep 1;
+		if (-e "gtk-3.0/gtk.css.$colortag") {
+			my $res = 0;
+			chdir 'gtk-3.0';
+			if ($bummer) {  #CAN'T USE SYMLINKS!:
+				print "..BUMMER(MS-Windows==NO SYMLINKS):  delete gtk.css & replace!\n";
+				unlink 'gtk.css';
+				print "..Copying new gtk.css.$colortag to gtk.css...\n";
+				$res = File::Copy::copy("gtk.css.$colortag", 'gtk.css');
+			} else {
+				`rm -f gtk.css`;  #CANT USE STUPID Perl's unlink() HERE SINCE IT'LL ALSO DELETE FILE POINTED TO! :-(=)
+				print "..Creating symlink from gtk.css.$colortag to gtk.css...\n";
+				$res = 0;
+				eval "\$res = symlink (\"gtk.css.$colortag\", 'gtk.css'); 1";
+				unless ($res) {
+					print "w:Could not create gtk.css symbolic link to gtk.css.$colortag in gtk-3.0/, trying copy...\n";
+					$res = File::Copy::copy("gtk.css.$colortag", 'gtk.css');
+				}
+			}
+			if ($max <= $TwilightThreshold) {  #BACKUP & REPLACE ANY DARK VARIANT:
+				print "i:Replacing gtk-dark.css theme with this one too...\n";
+				File::Copy::copy('gtk-dark.css', 'gtk-dark.css.backup')  if (-e 'gtk-dark.css');
+				File::Copy::copy("gtk.css.$colortag", 'gtk-dark.css');
+			}
+			chdir '..';
+			die "f:Could not create gtk-3.0/gtk.css\n"  unless ($res);
+		} else {
+			die "f:Failed to create new config file:  gtk.css.$colortag in gtk-3.0!\n";
+		}
+	}
+
+	#2)  gtk-2.0/gtkrc:
+
+	unless (-e 'gtk-2.0/gtkrc') {
+		my $res = (-e 'gtk-2.0/gtkrc.template')
+				? File::Copy::copy('gtk-2.0/gtkrc.template', 'gtk-2.0/gtkrc')
+				: 0;
+		die "..Could not open gtk-2.0/gtkrc for reading($!), aborting.\n"  unless ($res);
+	}
+	unlink 'gtk-2.0/gtkrc.backup'  if (-e 'gtk-2.0/gtkrc.backup');
+	print "..Backing up existing gtk-2.0/gtkrc to gtk-2.0/gtkrc.backup...\n";
+	File::Copy::copy('gtk-2.0/gtkrc', 'gtk-2.0/gtkrc.backup');
+	open (GTKCSS, "<gtk-2.0/gtkrc.backup") or die "..Could not open gtk-2.0/gtkrc for reading($!), aborting.";
+	print "..Creating new GTK-2 theme file \"gtk-2.0/gtkrc.$colortag\".\n";
+	if (open NEW, ">gtk-2.0/gtkrc.$colortag") {
+		my %slotHash = ();
+		foreach my $slot (keys %new) {
+			$slotHash{$slot} = $new{$slot};
+		}
+		my $softerForeground = ($max > $TwilightThreshold) ? 'black' : '#d9d9d9';
+		$slotHash{'softerForeground'} = $softerForeground;
+		$slotHash{'lighter_color'} = $new{'activeBackground'};
+		$slotHash{'maybelesslighter_color'} = $new{'activeBackground'};
+		$slotHash{'base_color'} = $new{'background'};
+		$slotHash{'darker_color'} = $new{'troughColor'};
+		$slotHash{'active_color'} = $new{'activeBackground'};
+		$slotHash{'button_selected_bg_color'} = $new{'disabledForeground'};
+		$slotHash{'text_selected_bg_color'} = $new{'selectedActiveBackground'};
+		$slotHash{'text_selected_fg_color'} = $new{'foreground'};
+		$slotHash{'menuitem_selected_bg_color'} = $new{'activeBackground'};
+		$slotHash{'menuitem_selected_fg_color'} = $softerForeground;
+		$slotHash{'listitem_selected_bg_color'} = $new{'disabledForeground'};
+		$slotHash{'listitem_selected_fg_color'} = $softerForeground;
+		$slotHash{'tab_normal_background'} = $new{'slightContrast'};
+		$slotHash{'tab_nonselected_background'} = $new{'background'};
+		while (<GTKCSS>) {
+			chomp;
+			foreach my $slot (sort keys %slotHash) {
+				next  if ($slot =~ /readonlyBackground/o);  #STOCK Tk DOES NOT SET THIS (USES #d9d9d9)!
+				s/^((?:gtk\-color\-scheme\s*\=\s*\")?(?:tkx?\_)?$slot\:)(?:\#[a-fA-F0-9]{6}|[a-zA-Z0-9]+)/$1$slotHash{$slot}/;
+			}
+			if ($max > $TwilightThreshold) {  #"DAY" THEME:
+				s#\.\.\/img\-dark\/#\.\.\/img\/#g;
+			} else {#"NIGHT" THEME:
+				s#\.\.\/img\/#\.\.\/img\-dark\/#g;
+			}
+			print NEW "$_\n";
+		}
+		close NEW;
+		print "..Successfully created new theme file \"gtk-2.0/gtkrc.$colortag\".\n";
+		close GTKCSS;
+		sleep 1;
+		if (-e "gtk-2.0/gtkrc.$colortag") {
+			my $res = 0;
+			chdir 'gtk-2.0';
+			if ($bummer) {  #CAN'T USE SYMLINKS!:
+				print "..BUMMER(MS-Windows==NO SYMLINKS):  delete gtkrc & replace!\n";
+				unlink 'gtkrc';
+				print "..Copying new gtkrc.$colortag to gtkrc...\n";
+				$res = File::Copy::copy("gtkrc.$colortag", 'gtkrc');
+			} else {
+				`rm -f gtkrc`;  #CANT USE STUPID Perl's unlink() HERE SINCE IT'LL ALSO DELETE FILE POINTED TO! :-(=)
+				print "..Creating symlink from gtkrc.$colortag to gtkrc...\n";
+				$res = 0;
+				eval "\$res = symlink (\"gtkrc.$colortag\", 'gtkrc'); 1";
+				unless ($res) {
+					print "w:Could not create gtkrc symbolic link to gtkrc.$colortag in gtk-2.0/, trying copy...\n";
+					$res = File::Copy::copy("gtkrc.$colortag", 'gtkrc');
+				}
+			}
+			chdir '..';
+			die "f:Could not create gtk-2.0/gtkrc\n"  unless ($res);
+		} else {
+			die "f:Failed to create new config file:  gtkrc.$colortag in gtk-2.0!\n";
+		}
+	}
+	print "..done: Successfully changed colors, no additional changes needed  except\n  restarting apps, if already using PerlTkTheme, enjoy!\n";
+}
+
+#FROM:  https://alvinalexander.com/perl/edu/articles/pl010005/
+#-------------------------------------------------------------------------#
+# promptUser, a Perl subroutine to prompt a user for input.
+# Copyright 2010 Alvin Alexander, http://www.devdaily.com
+# This code is shared here under the 
+# Creative Commons Attribution-ShareAlike Unported 3.0 license.
+# See http://creativecommons.org/licenses/by-sa/3.0/ for more information.
+#-------------------------------------------------------------------------#
+
+sub promptUser {
+
+	#-------------------------------------------------------------------#
+	#  two possible input arguments - $promptString, and $defaultValue  #
+	#  make the input arguments local variables.                        #
+	#-------------------------------------------------------------------#
+
+	my ($promptString,$defaultValue) = @_;
+
+	#-------------------------------------------------------------------#
+	#  if there is a default value, use the first print statement; if   #
+	#  no default is provided, print the second string.                 #
+	#-------------------------------------------------------------------#
+
+	if ($defaultValue) {
+		print $promptString, "[", $defaultValue, "]: ";
+	} else {
+		print $promptString, ": ";
+	}
+
+	$| = 1;               # force a flush after our print
+	$_ = <STDIN>;         # get the input from STDIN (presumably the keyboard)
+
+
+	#------------------------------------------------------------------#
+	# remove the newline character from the end of the input the user  #
+	# gave us.                                                         #
+	#------------------------------------------------------------------#
+
+	chomp;
+
+	#-----------------------------------------------------------------#
+	#  if we had a $default value, and the user gave us input, then   #
+	#  return the input; if we had a default, and they gave us no     #
+	#  no input, return the $defaultValue.                            #
+	#                                                                 # 
+	#  if we did not have a default value, then just return whatever  #
+	#  the user gave us.  if they just hit the <enter> key,           #
+	#  the calling routine will have to deal with that.               #
+	#-----------------------------------------------------------------#
+
+	if (defined $defaultValue) {
+		return $_ ? $_ : $defaultValue;    # return $_ if it has a value
+	} else {
+		return $_;
+	}
+}
+
+1

@@ -1,0 +1,1810 @@
+/**********************************************/
+/* PerlTkTheme theme; gtk3 part               */
+/* A derived work by (c)Jim Turner, June 2023 */
+/*                                            */
+/* from:  OneStepBack theme; gtk3 part        */
+/* jpsb: July 2015 - nov 2020                 */
+/**********************************************/
+
+/******************************************************/
+/* Perl/Tk colors, mostly obtained from setPalette()  */
+/* You can change these to whatever you like, but for */
+/* best results, simply run the configure script and  */
+/* specify your desired (background) color and it     */
+/* will back up your current theme and replace all    */
+/* the values below with the proper Tk pallette       */
+/* colors for that background color!  If you wish to  */
+/* manually customize the colors of certain widgets,  */
+/* you should modify the settings in the next section.*/
+/* "tkx_" means not provided by standard Perl/Tk      */
+/* setPalette, but configure still calculates value.  */
+/* NOTE:  It's best NOT to make changes in this       */
+/* section, as the configure script will overwrite    */
+/* them, instead make custom changes below the        */
+/* comment saying it's ok, a few lines below!:        */
+/******************************************************/
+
+/* Enter this first value into configure to obtain starting values for the others: */
+
+/*    Tk PALETTE COLOR-ATTRIBUTES      COLOR       LIGHT THEMES         | DARK THEMES: */
+/* base theme background color (aka "base color")! */
+@define-color tk_background            gray85;
+/* default foreground color */
+@define-color tk_foreground            black; /* black                | white */
+/* scroll-bar troughs, sunken areas, etc. */
+@define-color tk_troughColor           #c4c4c4; /* always a step darker than base */
+@define-color tkx_lighterBackground    #fafafa; /* always a step lighter than base */
+/* not currently used, but available from Tk::setPalette & configure script: */
+@define-color tk_highlightBackground   gray85; /* always seems to be the base color */
+@define-color tk_insertBackground      black; /* black                | white */
+/* background of (most) "active" widgets, ie. hovering over a button */
+@define-color tk_activeBackground      #fafafa; /* brightest color used | very bright */
+/* foreground, ie. text color on disabled widgets, ie. buttons, text-entry fields,
+   and background of selected widget within a widget grouping
+*/
+@define-color tk_disabledForeground    #a3a3a3; /* noticably brigher    | noticably darker (than base) */
+/* background of highlighted (ie. hovered over) widget within a widget grouping, if selected */
+@define-color tk_selectBackground      #c4c4c4; /* usually =tk_troughColor, user may want brighter color on dark themes */
+/* background of selected text (overridden by us instead of using tk_selectBackground, see above note): */
+@define-color tkx_selectedActiveBackground  #c4c4c4; /* slightly darker | lighter (than base) */
+@define-color tkx_bevelHighlight       #e6e6e6; /* brighter than tk_activeBackground */
+@define-color tkx_bevelShadow          #6c6c6c; /* darker than tkx_bevelHighlight & tk_activeBackground */
+@define-color tkx_activeBevelHighlight #e6e6e6; /* somewhat brighter    | brightest color used */
+@define-color tkx_activeBevelShadow    #898989; /* brighter than        | darker than (tkx_bevelShadow) */
+@define-color tkx_slightContrast       #c4c4c4; /* slightly darker      | slightly brighter (than base) */
+@define-color tkx_entry_disabledBackground  #d9d9d9;
+/* non-highlighted text color (slightly off-white may be preferrable for dark themes):
+   NOTE: configure script will set to black if light theme or #d9d9d9 if dark!:
+*/
+@define-color softerForeground         Black; /* black                | slightly off-white */
+/* only used on the progress bar fill-in bar:
+   Recommended alternative choices:  @tk_activeBackground: 
+*/
+
+
+/********** ALL USER-CUSTOMIZATIONS SHOULD BE MADE BELOW THIS LINE! **********/
+
+/* These aren't provided by Perl/Tk or the configure script, but may be changed: */
+
+@define-color scale_color              #00ff00; /* hard-coded, user may want to change */
+/* "Slightly" lighter color than stock tk_activeBackground color (regardless of light or dark theme) for mouseovers: */
+@define-color lighter_color            @tk_activeBackground;
+/* "Slightly" lighter color than base color (regardless of light or dark theme) for button mouseovers: */
+/* NOTE: Stock Perl/Tk uses harsh contrast (imho) on button-mouseovers on very dark theme backgrounds:
+   Dark theme users may want to lower this for less-harsh button foregrounds on mouseover
+   Light theme users may prefer the default value (@tk_activeBackground)
+   Recommended alternative choices (dark themes):  @tkx_slightContrast:
+*/
+@define-color maybelesslighter_color   @tk_activeBackground;
+/* "Slightly" darker color than base color (regardless of light or dark theme: */
+@define-color darker_color             @tk_troughColor;
+/* "Slightly" darker than base IF light theme, "slightly" lighter if dark theme! */
+@define-color darker_themed_color      @tkx_slightContrast;
+/* "Slightly" lighter color than base color (regardless of light or dark theme: */
+@define-color lighter_base_color       @tkx_lighterBackground;
+
+/*****************************/
+/* General Color definitions */
+/*****************************/
+
+@define-color foreground_color  @tk_foreground; /* SHOULD BE BLACKISH FOR LIGHT THEMES, WHITEISH FOR DARK ONES! */
+@define-color base_color        @tk_background; /* default background of most stuff */
+@define-color trough_color      @tk_troughColor; /* default for most "troughs" */
+@define-color text_fg_color     @softerForeground; /* For using a softer (off-white) foreground for text in dark themes */
+@define-color active_color      @tkx_slightContrast;
+/* NOTE: Stock Perl/Tk gets this WRONG on DARK themes (tk_trough_color), but we need bright for 
+   dark themes & slightly darker on light!  The problem with dark themes is that in Perl/Tk, the selected
+   text is also shown with a thin border, which we can't replicate here, so we need to force the
+   selected text background to something brighter on dark themes in order for users to see what's selected!:
+   Therefore, we've OVERRIDDEN it here with @tkx_slightContrast in order to prevent selected things in some
+   apps from not being distinguished.     Recommended alternative choices:  @tkx_selectedActiveBackground 
+   (instead of @tk_selectBackground or @tkx_slightContrast):
+*/
+@define-color selected_color    @tkx_slightContrast; /* Used for background of selected items in lists and treeviews */
+@define-color disabled_fg_color @tk_disabledForeground; /* Used for foreground of disabled / insensitive widgets */
+
+/******************************************************/
+/* Widget-specific derived colors:                    */
+/* Customize away - configure script will not alter!: */
+/******************************************************/
+
+/* Normal buttons (w/background close to base): */
+@define-color bevel_highlight             @tkx_bevelHighlight;  /* bright but not white! */
+@define-color bevel_shadow                @tkx_bevelShadow;
+/* Bevels of toggleable buttons when in pressed state */
+@define-color button_activeBevelHighlight @bevel_highlight;
+@define-color button_activeBevelShadow    @darker_themed_color;
+/* Background of toggleable buttons when in pressed state */
+@define-color button_selected_background  @tk_disabledForeground;
+/* Notebook background and tabs: */
+/* NOTE: Stock Perl/Tk always uses #d9d9d9 for this field (UGLY!), so we change to something
+   safe (@base_color), so feel free to change.  Warning, this color is used by some other
+   unknown widgets for background in some apps, so pbly best to keep close to base_color!
+   Other recommended choices:  @lighter_base_color, @tk_troughColor, @tab_nonselected_background:
+*/
+@define-color notebook_background         @base_color; /* area behind tabs *AND some OTHER areas? (choose carefully)! */
+@define-color tab_selected_background     @base_color; /* Selected tab (Perl/Tk defaults to @base_color) */
+/* NOTE: Stock Perl/Tk always uses #d9d9d9 for this field (UGLY!), so we change to something
+   safe (@disabled_fg_color), so feel free to change.
+   Other recommended choices:  @notebook_background, @tk_activeBackground:
+*/
+@define-color tab_nonselected_background  @disabled_fg_color; /* Other tabs (Perl/Tk defaults to #d9d9d9)! */
+@define-color tab_hover_background        @lighter_color;
+@define-color tab_active_bevel_highlight  @tkx_activeBevelHighlight;
+@define-color tab_active_bevel_shadow     @tkx_activeBevelShadow;
+/* NOTE: Stock Perl/Tk uses tkx_activeBevel{Highlight/Shadow> for the selected tab's beveling
+   (in order to work with the bright activeForeground used), but some users may instead wish to
+   use regular @tkx_bevel{Highlight/Shadow> for all tabs for consistancy:
+*/
+@define-color tab_bevel_highlight         @tkx_bevelHighlight;
+@define-color tab_bevel_shadow            @tkx_activeBevelShadow;
+/* Frames (set different values for beveling effect): */
+/* NOTE: Stock Perl/Tk only does flat frames - users may want to change from
+   the Tk default of @base_color to @tk_troughColor for a slightly darker, more sunken GTK-ish look!:
+*/
+@define-color frame_background            @base_color;
+@define-color frame_bevel_shadow          @darker_themed_color;  /* further from base, make frames stand out!: */
+@define-color frame_bevel_highlight       @maybelesslighter_color;  /* closer to above value, less beveling effect. */
+@define-color headerbar_bg_color          @trough_color;
+@define-color focus_frame_color           @text_fg_color;  /* keyboard-focused entry widget borders */
+/* Text and Entry widgets: */
+@define-color text_selected_bg_color      @tkx_selectedActiveBackground;
+@define-color text_selected_fg_color      @foreground_color;
+/* NOTE: Stock Perl/Tk uses #d9d9d9 (tkx_entry_disabledBackground) on ALL disabled entry widgets
+   (ugly, imho)!
+   Recommended alternative choices:  @base_color, @tk_background, @tkx_slightContrast, or Gray50:
+*/
+@define-color entry_disabledBackground    @tkx_entry_disabledBackground;
+@define-color text_view_bg                @bevel_highlight; /* OneStepBack theme hack for gnome terminal 27 sep 2020? */
+/* Menus, Lists & Treeviews: */
+@define-color menuitem_selected_bg_color  @maybelesslighter_color;
+@define-color menuitem_selected_fg_color  @foreground_color;
+@define-color listitem_selected_bg_color  @selected_color;
+@define-color listitem_selected_fg_color  @foreground_color;
+@define-color sb_trough_color             @trough_color;  /* scrollbar trough color */
+
+/***********************************************************************************/
+/* Shouldn't need to change anything below here:                                   */
+/* NOTE:  If using a "dark" theme, change all "/img/" occurances to "/img-dark/" - */
+/*   configure script (if used) takes care of this!:                               */
+/***********************************************************************************/
+
+/* Legacy stuff from OneStepBack theme:
+@define-color inset_lighter_color shade(@base_color,0.9);
+@define-color outset_lighter_color shade(@base_color,1.3);
+@define-color inset_darker_color shade(@base_color,0.5);
+*/
+@define-color inset_lighter_color @darker_themed_color;
+@define-color outset_lighter_color @darker_themed_color;
+@define-color inset_darker_color @bevel_shadow;
+
+/**************************************************************/
+/* Color names curiously hardcoded in some gnome applications */
+/* Holdover from "OneStepBack" theme:                         */
+/**************************************************************/
+
+@define-color theme_base_color @base_color;
+@define-color theme_text_color @foreground_color;
+/*
+@define-color theme_bg_color @base_color;
+*/
+@define-color theme_bg_color @base_color;
+@define-color theme_fg_color @foreground_color;
+@define-color theme_selected_bg_color @listitem_selected_bg_color; /* list select */
+@define-color theme_selected_fg_color @listitem_selected_fg_color;
+@define-color theme_tooltip_bg_color @tk_disabledForeground;
+@define-color theme_tooltip_fg_color @foreground_color;
+
+/* END COLOR DEFINITIONS */
+
+
+/**********************************************/
+/* headerbar */
+/**********************************************/
+
+headerbar, messagedialog .titlebar {
+    background-color: @headerbar_bg_color; /* fond de barre */
+    color: @headerbar_bg_color; /* séparations verticales dans la barre */
+    border-radius: 5px 5px 0px 0px;
+}
+
+.titlebar .title {
+    color: @foreground_color;
+    font-weight: bold;
+}
+
+.titlebar .title:backdrop {
+    color: @base_color;
+}
+
+.pathbar { /* dconf-editor */
+    color: @foreground_color;
+    font-weight: bold;
+}
+
+/* ombres des fenêtres ("OneStepBack" theme holdover): */
+decoration {
+    /* arrondi des angles la barre de titre */
+    border-radius: 5px 5px 0px 0px;
+
+    /* the resize cursor area */
+    margin: 10px;
+
+    /* box-shadow: [inset] horizontal_offset vertical_offset blur_radius color; */
+    box-shadow: 0 3px 3px 1px @text_fg_color, 0 0 0 1px @text_fg_color;
+}
+
+decoration:backdrop {
+    box-shadow: 0 3px 3px 1px @text_fg_color, 0 0 0 1px @text_fg_color;
+}
+
+/***********************************************/
+/* general */
+/**********************************************/
+
+* {
+/*
+    -GtkScrollbar-has-backward-stepper: false;
+    -GtkScrollbar-has-forward-stepper: true;
+    -GtkScrollbar-has-secondary-forward-stepper: false;
+    -GtkScrollbar-has-secondary-backward-stepper: true;
+*/
+
+    /* -GtkWidget-window-dragging: true;*/  /* behrz */
+    /* seems to break things in gnumeric: Ingo S. */
+}
+
+.background {
+    background-color: @base_color;
+    color: @text_fg_color;
+}
+
+/* JWT:THIS ALLOWS FOR BACKGROUND TO KEEP THE COLOR SHADE OF THE THEME (MINIFAUXDACIOUS): */
+.gtkstyle-fallback {
+  color: @foreground_color;
+  background-color: @base_color; }
+  .gtkstyle-fallback:hover {
+    color: @foreground_color;
+    background-color: @active_color; }
+  .gtkstyle-fallback:active {
+    color: @foreground_color;
+    background-color: @active_color; }
+  .gtkstyle-fallback:disabled {
+    color: @disabled_fg_color;
+    background-color: @base_color; }
+  .gtkstyle-fallback:selected {
+    color: @foreground_color;
+    background-color: @selected_color; }
+
+/**********************************************/
+/* button */
+/**********************************************/
+
+button {
+    background-color: @base_color;
+    color: @text_fg_color;
+    padding: 3px;
+    border-left: 2px solid @bevel_highlight;
+    border-top: 2px solid @bevel_highlight;
+    border-right: 2px solid @bevel_shadow;
+    border-bottom: 2px solid @bevel_shadow;
+}
+
+button:hover {
+    background-color: @maybelesslighter_color;
+}
+
+button:active {  /* BEVELS INVERTED (PRESSED DOWN)! */
+/*    background-color: @button_selected_background; */
+    border-left: 2px solid @bevel_shadow;
+    border-top: 2px solid @bevel_shadow;
+    border-right: 2px solid @bevel_highlight;
+    border-bottom: 2px solid @bevel_highlight;
+}
+
+button:checked:not(:active) {  /* BEVELS INVERTED (PRESSED DOWN)! */
+    background-color: @button_selected_background;
+    border-left: 2px solid @button_activeBevelShadow;
+    border-top: 2px solid @button_activeBevelShadow;
+    border-right: 2px solid @button_activeBevelHighlight;
+    border-bottom: 2px solid @button_activeBevelHighlight;
+}
+
+/*
+button:active:hover {  ** BEVELS INVERTED (PRESSED DOWN)! **
+    background-color: @lighter_color;
+    border-left: 2px solid @bevel_shadow;
+    border-top: 2px solid @bevel_shadow;
+    border-right: 2px solid @bevel_highlight;
+    border-bottom: 2px solid @bevel_highlight;
+}
+*/
+
+button:checked:hover {
+    background-color: @lighter_color;
+}
+
+button:disabled {
+    background-color: @base_color;
+    color: @disabled_fg_color;
+}
+
+button:checked:disabled {
+    background-color: @base_color;
+    color: @disabled_fg_color;
+}
+
+headerbar button, headerbar button:selected, headerbar button:hover {
+    border: none;
+    background-color: transparent; /* fond de bouton de headerbar */
+    color: @foreground_color; /* couleur int bouton de barre */
+}
+
+headerbar button:checked, headerbar button:checked:hover {
+    border: none;
+    background-color: transparent; /* fond de bouton de headerbar */
+    color: @foreground_color; /* couleur int bouton de barre */
+    font-weight: bold;
+}
+
+headerbar button:active:hover  { /* bouton de headerbar cliqué */
+    border: none;
+    background-color: transparent;
+    color: @foreground_color;
+}
+
+headerbar button:backdrop {
+    color: @darker_themed_color;
+}
+
+headerbar .close.titlebutton:active:hover {
+    background-color: @text_selected_bg_color;
+}
+
+headerbar button:disabled:backdrop {
+    color: @darker_color;
+}
+
+/**********************************************/
+/* menu */
+/**********************************************/
+
+menubar {    /* MENU HEADER-BAR NOT CONTAINING ANY MENU TABS: */
+    border-left: 2px solid @bevel_highlight;
+    border-top: 2px solid @bevel_highlight;
+    border-bottom: 2px solid @bevel_shadow;
+    border-right: 2px solid @bevel_shadow;
+    padding: 0px;
+}
+
+menu {
+    padding: 2px;  /* MUST MATCH BORDER, IF BEVELING! */
+    border-left: 2px solid @bevel_highlight;
+    border-top: 2px solid @bevel_highlight;
+    border-bottom: 2px solid @bevel_shadow;
+    border-right: 2px solid @bevel_shadow;
+}
+
+menuitem {    /* MENU ITEM TABS *AND* THE MENU THAT POPS UP WHEN PRESSED: */
+    padding-left: 4px;
+    padding-right: 4px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    border: 2px solid @base_color;
+}
+
+menuitem:hover {  /* OVER THE POPUP-MENUS, AND MENU TABS, *BUT ONLY WHEN A POPUP-MENU IS BEING SHOWN?!: */
+    background-color: @menuitem_selected_bg_color;
+    color: @menuitem_selected_fg_color;
+    border-left: 2px solid @bevel_highlight;
+    border-top: 2px solid @bevel_highlight;
+    border-bottom: 2px solid @bevel_shadow;
+    border-right: 2px solid @bevel_shadow;
+}
+
+combobox menu {
+    border-left: 2px solid @bevel_highlight;
+    border-top: 2px solid @bevel_highlight;
+    border-bottom: 2px solid @bevel_shadow;
+    border-right: 2px solid @bevel_shadow;
+}
+
+/**********************************************/
+/* toolbar */
+/**********************************************/
+
+toolbar {
+    border: 0px;
+}
+
+toolbar button {
+    border-color: transparent;
+    background-color: transparent;
+    background-image: none;
+    box-shadow: inset 0 1px rgba(255, 255, 255, 0);
+    text-shadow: none;
+    transition: none;
+    border: 1px solid transparent;
+    padding-top: 2px;
+    padding-bottom: 2px;
+}
+
+toolbar button:hover {
+    background-color: @maybelesslighter_color;
+    border-left: 1px solid @bevel_highlight;
+    border-top: 1px solid @bevel_highlight;
+    border-right: 1px solid @bevel_shadow;
+    border-bottom: 1px solid @bevel_shadow;
+}
+
+toolbar button:active {
+    border-left: 1px solid @bevel_shadow;
+    border-top: 1px solid @bevel_shadow;
+    border-right: 1px solid @bevel_highlight;
+    border-bottom: 1px solid @bevel_highlight;
+}
+
+toolbar button:checked:not(:active) {
+    background-color: @button_selected_background;
+    border-left: 1px solid @button_activeBevelShadow;
+    border-top: 1px solid @button_activeBevelShadow;
+    border-right: 1px solid @button_activeBevelHighlight;
+    border-bottom: 1px solid @button_activeBevelHighlight;
+}
+
+toolbar button:checked:hover {
+    background-color: @lighter_color;
+}
+
+/**********************************************/
+/* scale */
+/**********************************************/
+ 
+scale trough {   /* BEVELS INVERTED (SUNKEN)! */
+    margin: 1px;
+    background-color: @trough_color;
+    border-left: 2px solid @bevel_shadow;
+    border-top: 2px solid  @bevel_shadow;
+    border-right: 2px solid @bevel_highlight;
+    border-bottom: 2px solid @bevel_highlight;
+}
+
+scale.horizontal trough {
+    padding-left: 14px;
+    padding-right: 14px;
+}
+
+scale.vertical trough {
+    padding-top: 14px;
+    padding-bottom: 14px;
+}
+
+/* JWT:UNCOMMENT TO HIGHLIGHT SLIDER-TROUGH BORDER (Perl/Tk DOESN'T) ON SCALE WIDGETS WHEN HOVERING OVER THEM:
+scale.horizontal:hover {
+    background-color: @maybelesslighter_color;
+}
+
+scale.vertical:hover {
+    background-color: @maybelesslighter_color;
+}
+*/
+
+scale.horizontal slider {
+    min-width: 29px;
+    min-height: 12px;
+    background-repeat: no-repeat;
+    background-position: center center;
+/*     background-image: url("../img/scrollbar_thumb.png"); */
+    background-color: @base_color;
+    border-left: 2px solid @bevel_highlight;
+    border-top: 2px solid @bevel_highlight;
+    border-right: 2px solid @bevel_shadow;
+    border-bottom: 2px solid @bevel_shadow;
+}
+
+scale.horizontal slider:hover {
+    background-color: @maybelesslighter_color;
+}
+
+scale.horizontal slider:active {  /* WHEN PRESSED (BEVELS INVERTED): */
+    border-left: 2px solid @bevel_shadow;
+    border-top: 2px solid @bevel_shadow;
+    border-right: 2px solid @bevel_highlight;
+    border-bottom: 2px solid @bevel_highlight;
+}
+
+scale.vertical slider {
+    min-width: 12px;
+    min-height: 29px;
+    background-repeat: no-repeat;
+    background-position: center center;
+/* JWT:UNCOMMENT IF YOU WANT A SMALL DIVOT IN MIDDLE OF SCROLLBARS:     background-image: url("../img/scrollbar_thumb.png"); */
+    background-color: @base_color;
+    border-left: 2px solid @bevel_highlight;
+    border-top: 2px solid @bevel_highlight;
+    border-right: 2px solid @bevel_shadow;
+    border-bottom: 2px solid @bevel_shadow;
+}
+
+scale.vertical slider:hover {
+    background-color: @maybelesslighter_color;
+}
+
+scale.vertical slider:active {  /* WHEN PRESSED (BEVELS INVERTED): */
+    border-left: 2px solid @bevel_shadow;
+    border-top: 2px solid @bevel_shadow;
+    border-right: 2px solid @bevel_highlight;
+    border-bottom: 2px solid @bevel_highlight;
+}
+
+scale indicator {
+    min-width: 1px;
+    min-height: 5px;
+    background: @darker_themed_color;
+}
+
+/**********************************************/
+/* progressbar */
+/**********************************************/
+
+progressbar {
+    color: @text_fg_color;
+    background-color: @base_color;
+}
+
+progressbar.vertical trough { /* BEVELS INVERTED (SUNKEN)! */
+    min-width: 16px;
+    background-color: @darker_color;
+    color: @text_fg_color;
+    border-left: 1px solid @bevel_shadow;
+    border-top: 1px solid  @bevel_shadow;
+    border-right: 1px solid @bevel_highlight;
+    border-bottom: 1px solid @bevel_highlight;
+}
+
+progressbar.horizontal trough { /* BEVELS INVERTED (SUNKEN)! */
+    min-height: 16px;
+    background-color: @trough_color;
+    color: @text_fg_color;
+    border-left: 1px solid @bevel_shadow;
+    border-top: 1px solid  @bevel_shadow;
+    border-right: 1px solid @bevel_highlight;
+    border-bottom: 1px solid @bevel_highlight;
+}
+
+progressbar.vertical progress {
+    min-width: 14px;
+    background-color: @scale_color;
+    border-left: 1px solid @bevel_highlight;
+    border-top: 1px solid @bevel_highlight;
+    border-right: 1px solid @bevel_shadow;
+    border-bottom: 1px solid @bevel_shadow;
+}
+
+progressbar.horizontal progress {
+    min-height: 14px;
+    background-color: @scale_color;
+    border-left: 1px solid @bevel_highlight;
+    border-top: 1px solid @bevel_highlight;
+    border-right: 1px solid @bevel_shadow;
+    border-bottom: 1px solid @bevel_shadow;
+}
+
+progressbar.vertical text {
+    margin-right: 25px;
+}
+
+/********************************************************************/
+/* scrollbars                                                       */
+/*                                                                  */
+/* NOTE:  We escue the nice fat tk-looking scrollbars in order to   */
+/* make 'em as skinny as possible here since GTK pops 'em up on top */
+/* of (covering up) other widgets, making them inaccessible!        */
+/* I find this annoying, but GTK is what it is. :-/                 */
+/********************************************************************/
+
+scrollbar trough {
+    background-color: @sb_trough_color;
+    min-width: 10px;
+    min-height: 10px;
+    border: 0px;
+}
+
+scrollbar slider {
+    background-color: @base_color;
+    min-width: 8px;
+    min-height: 8px;
+    border-left: 1px solid @bevel_highlight;
+    border-top: 1px solid @bevel_highlight;
+    border-right: 1px solid @bevel_shadow;
+    border-bottom: 1px solid @bevel_shadow;
+    background-repeat: no-repeat;
+    background-position: center center;
+/* JWT:UNCOMMENT IF YOU WANT A SMALL DIVOT IN MIDDLE OF SCROLLBARS:    background-image: url("../img/scrollbar_thumb.png"); */
+}
+
+scrollbar slider:hover {
+    background-color: @maybelesslighter_color;
+}
+
+scrollbar slider:active {  /* WHEN PRESSED (BEVELS INVERTED): */
+    border-left: 1px solid @bevel_shadow;
+    border-top: 1px solid @bevel_shadow;
+    border-right: 1px solid @bevel_highlight;
+    border-bottom: 1px solid @bevel_highlight;
+}
+
+scrollbar.vertical slider {
+        min-height: 30px;
+}
+
+scrollbar.horizontal slider {
+        min-width: 30px;
+}
+
+scrollbar.vertical button.up {
+    background-color: @base_color;
+    border-left: 1px solid @bevel_highlight;
+    border-top: 1px solid @bevel_highlight;
+    border-right: 1px solid @bevel_shadow;
+    border-bottom: 1px solid @bevel_shadow;
+    padding: 0px;
+    min-height: 8px;
+    -gtk-icon-source: url("../img/arrow-up.png");
+	-gtk-icon-shadow: none;
+}
+
+scrollbar.vertical button.up:hover {
+    background-color: @maybelesslighter_color;
+    padding: 0px;
+    min-height: 8px;
+    -gtk-icon-source: url("../img/arrow-up.png");
+	-gtk-icon-shadow: none;
+}
+
+scrollbar.vertical button.up:active {  /* WHEN PRESSED (BEVELS INVERTED): */
+    border-left: 1px solid @bevel_shadow;
+    border-top: 1px solid @bevel_shadow;
+    border-right: 1px solid @bevel_highlight;
+    border-bottom: 1px solid @bevel_highlight;
+    padding: 0px;
+    min-height: 8px;
+    -gtk-icon-source: url("../img/arrow-up.png");
+	-gtk-icon-shadow: none;
+}
+
+scrollbar.vertical button.up:disabled {
+    padding: 0px;
+    min-height: 8px;
+    -gtk-icon-source: url("../img/arrow-up-disabled.png");
+	-gtk-icon-shadow: none;
+}
+
+scrollbar.vertical button.down {
+    background-color: @base_color;
+    border-left: 1px solid @bevel_highlight;
+    border-top: 1px solid @bevel_highlight;
+    border-right: 1px solid @bevel_shadow;
+    border-bottom: 1px solid @bevel_shadow;
+    padding: 0px;
+    min-height: 8px;
+    -gtk-icon-source: url("../img/arrow-down.png");
+	-gtk-icon-shadow: none;
+}
+
+scrollbar.vertical button.down:hover {
+    background-color: @maybelesslighter_color;
+    padding: 0px;
+    min-height: 8px;
+    -gtk-icon-source: url("../img/arrow-down.png");
+	-gtk-icon-shadow: none;
+}
+
+scrollbar.vertical button.down:active {  /* WHEN PRESSED (BEVELS INVERTED): */
+    border-left: 1px solid @bevel_shadow;
+    border-top: 1px solid @bevel_shadow;
+    border-right: 1px solid @bevel_highlight;
+    border-bottom: 1px solid @bevel_highlight;
+    padding: 0px;
+    min-height: 8px;
+    -gtk-icon-source: url("../img/arrow-down.png");
+	-gtk-icon-shadow: none;
+}
+
+scrollbar.vertical button.down:disabled {
+    padding: 0px;
+    min-height: 8px;
+    -gtk-icon-source: url("../img/arrow-down-disabled.png");
+	-gtk-icon-shadow: none;
+}
+
+scrollbar.horizontal button.up {
+    background-color: @base_color;
+    border-left: 1px solid @bevel_highlight;
+    border-top: 1px solid @bevel_highlight;
+    border-right: 1px solid @bevel_shadow;
+    border-bottom: 1px solid @bevel_shadow;
+    padding: 0px;
+    min-width: 8px;
+    -gtk-icon-source: url("../img/arrow-left.png");
+	-gtk-icon-shadow: none;
+}
+
+scrollbar.horizontal button.up:hover {
+    background-color: @maybelesslighter_color;
+    padding: 0px;
+    min-width: 8px;
+    -gtk-icon-source: url("../img/arrow-left.png");
+	-gtk-icon-shadow: none;
+}
+
+scrollbar.horizontal button.up:active {  /* WHEN PRESSED (BEVELS INVERTED): */
+    background-color: @base_color;
+    border-left: 1px solid @bevel_shadow;
+    border-top: 1px solid @bevel_shadow;
+    border-right: 1px solid @bevel_highlight;
+    border-bottom: 1px solid @bevel_highlight;
+    padding: 0px;
+    min-width: 8px;
+    -gtk-icon-source: url("../img/arrow-left.png");
+	-gtk-icon-shadow: none;
+}
+
+scrollbar.horizontal button.up:disabled {
+    padding: 0px;
+    min-width: 8px;
+    -gtk-icon-source: url("../img/arrow-left-disabled.png");
+	-gtk-icon-shadow: none;
+}
+
+scrollbar.horizontal button.down {
+    background-color: @base_color;
+    border-left: 1px solid @bevel_highlight;
+    border-top: 1px solid @bevel_highlight;
+    border-right: 1px solid @bevel_shadow;
+    border-bottom: 1px solid @bevel_shadow;
+    padding: 0px;
+    min-width: 8px;
+    -gtk-icon-source: url("../img/arrow-right.png");
+	-gtk-icon-shadow: none;
+}
+
+scrollbar.horizontal button.down:hover {
+    background-color: @maybelesslighter_color;
+    padding: 0px;
+    min-width: 8px;
+    -gtk-icon-source: url("../img/arrow-right.png");
+	-gtk-icon-shadow: none;
+}
+
+scrollbar.horizontal button.down:active {  /* WHEN PRESSED (BEVELS INVERTED): */
+    border-left: 1px solid @bevel_shadow;
+    border-top: 1px solid @bevel_shadow;
+    border-right: 1px solid @bevel_highlight;
+    border-bottom: 1px solid @bevel_highlight;
+    padding: 0px;
+    min-width: 8px;
+    -gtk-icon-source: url("../img/arrow-right.png");
+	-gtk-icon-shadow: none;
+}
+
+scrollbar.horizontal button.down:disabled {
+    padding: 0px;
+    min-width: 8px;
+    -gtk-icon-source: url("../img/arrow-right-disabled.png");
+	-gtk-icon-shadow: none;
+}
+/**********************************************/
+/* entry, treeview, textview, iconwiew, grid */
+/**********************************************/
+
+entry {  /* INVERTED BEVELS (SUNKEN): */
+    background-color: @base_color;
+    color: @text_fg_color;
+    padding: 2px;
+    border-left: 2px solid  @bevel_shadow;
+    border-top: 2px solid  @bevel_shadow;
+    border-right: 2px solid @bevel_highlight;
+    border-bottom: 2px solid @bevel_highlight;
+}
+
+entry:focus {
+    border-left: 2px solid  @focus_frame_color;
+    border-top: 2px solid  @focus_frame_color;
+    border-right: 2px solid @focus_frame_color;
+    border-bottom: 2px solid @focus_frame_color;
+}
+
+entry:disabled {
+    background-color: @entry_disabledBackground;
+    color: @disabled_fg_color;
+}
+
+label:disabled {
+/*
+    color: @active_color; modifié le 13 jan 2020
+*/
+    color: @disabled_fg_color;
+}
+
+selection, textview selection {
+    background-color: @text_selected_bg_color;
+    color: @text_selected_fg_color;
+}
+
+textview {
+    background-color: @base_color;
+    color: @text_fg_color;
+}
+
+iconview {
+    background-color: @base_color;
+    color: @text_fg_color;
+    border-left: 1px solid @bevel_highlight;
+    border-top: 1px solid @bevel_highlight;
+    border-bottom: 1px solid @bevel_shadow;
+    border-right: 1px solid @bevel_shadow;
+}
+
+iconview *:selected, iconview *:active {
+    background-color: @lighter_color;
+    color: @text_selected_fg_color;
+    border-left: 1px solid @bevel_highlight;
+    border-top: 1px solid @bevel_highlight;
+    border-bottom: 1px solid @bevel_shadow;
+    border-right: 1px solid @bevel_shadow;
+}
+
+grid *:selected, grid *:active {
+    background-color: @lighter_color;
+    color: @text_selected_fg_color;
+    border-left: 1px solid @bevel_shadow;
+    border-top: 1px solid @bevel_shadow;
+    border-bottom: 1px solid @bevel_highlight;
+    border-right: 1px solid @bevel_highlight;
+}
+
+/**********************************************************************/
+/* frame, notebook, tab                                               */
+/*                                                                    */
+/* NOTE:  Perl/Tk uses weird default color-combinations for notebooks */
+/* which are counter-intuitive, contrary to other widget-groupings,   */
+/* and downright ugly imho (tab bar and non-selected tabs background  */
+/* to a blazing white and selected tab is base color, and tabs have   */
+/* rounded top borders) (Tk tabs are always on top / GTK tabs can be  */
+/* on any of the four sides).  Therefore I took liberty to redo the   */
+/* styles slightly here while maintaining the general Tk-look as best */
+/* as possible.  Feel free to alter as you see fit.                   */
+/*                                                                    */
+/* Most of the notebook stuff ideas came from "CDETHEME 1.3" (whereas */
+/* the rest originiated with the "OneStepBack" theme,                 */
+/* by Jean-Pierre Bucciol - see README file)                          */
+/* CREDIT:  CDETHEME 1.3 / JOS@JOSVANRISWICK.COM:                     */
+/* https://www.gnome-look.org/p/1231025                               */
+/**********************************************************************/
+
+notebook,
+notebook header  /* NOTE: BGND. USED IN WIDGETS OTHER THAN JUST SPACE CONTAINING THE TABS! */
+{
+	background: @notebook_background;
+}
+
+notebook header tab > label,
+notebook label 
+{
+	padding: 0px 0px; 
+}
+
+notebook header.right tab:not(:checked) 
+{
+	margin: 0 2px 0 0;
+	padding-right: 6px;
+	background-color: @tab_nonselected_background;
+	border-top-color:	@tab_bevel_highlight;
+	border-right-color:	@tab_bevel_shadow;
+	border-bottom-color:	@tab_bevel_shadow;
+	border-left:	0px;
+}
+notebook header.right tab
+{
+	margin: 0 2px 0 -2px;  /* ORDER:  T+v R+< B+^ L+> */
+	padding-top: 3px;
+	padding-bottom: 3px;
+	background-color: @tab_selected_background; 
+	border-style:solid;
+	border-width:2px;
+	border-top-color:	@tab_bevel_highlight;
+	border-right-color:	@tab_bevel_shadow;
+	border-bottom-color:	@tab_bevel_shadow;
+	border-left: 0px;
+	border-radius: 0 6px 5px 0;  /* JWT:STRANGLY SEEMS TO LOOK BETTER UNEVEN (IN HIGHLIGHT TO SHADOW TRANSITION)?! */
+}
+notebook header.right tab:hover 
+{
+	background-color: @tab_hover_background; 
+	border-style:solid;
+	border-top-color:	@tab_active_bevel_highlight;
+	border-right-color:	@tab_active_bevel_shadow;
+	border-bottom-color:	@tab_active_bevel_shadow;
+	border-left:	0px;
+}
+notebook header.right tab:disabled 
+{
+	background-color: @base_color; 
+	color:  @disabled_fg_color;
+	border-style:solid;
+	border-width:2px;
+	border-top-color:	@tab_bevel_highlight;
+	border-right-color:	@tab_bevel_shadow;
+	border-bottom-color:	@tab_bevel_shadow;
+	border-left: 0px;
+	border-radius: 0 6px 5px 0;  /* JWT:STRANGLY SEEMS TO LOOK BETTER UNEVEN (IN HIGHLIGHT TO SHADOW TRANSITION)?! */
+}
+
+notebook header.left tab:not(:checked) 
+{
+	margin: 0 0 0 2px;
+	padding-left: 5px;
+	background-color: @tab_nonselected_background;
+	border-top-color:	@tab_bevel_highlight;
+	border-right:	0px;
+	border-bottom-color:	@tab_bevel_shadow;
+	border-left-color:	@tab_bevel_highlight;
+}
+notebook header.left tab
+{
+	margin: 0 -2px 0 2px;  /* ORDER:  T+v R+< B+^ L+> */
+	padding-top: 3px;
+	padding-bottom: 3px;
+	background-color: @tab_selected_background; 
+	border-style:solid;
+	border-width:2px;
+	border-top-color:	@tab_bevel_highlight;
+	border-right: 0px;
+	border-bottom-color:	@tab_bevel_shadow;
+	border-left-color:	@tab_bevel_highlight;
+	border-radius: 6px 0 0 5px;  /* JWT:STRANGLY SEEMS TO LOOK BETTER UNEVEN (IN HIGHLIGHT TO SHADOW TRANSITION)?! */
+}
+notebook header.left tab:hover 
+{
+	background-color: @tab_hover_background; 
+	border-style:solid;
+	border-top-color:	@tab_active_bevel_highlight;
+	border-right:	0px;
+	border-bottom-color:	@tab_active_bevel_shadow;
+	border-left-color:	@tab_active_bevel_highlight;
+}
+notebook header.left tab:disabled 
+{
+	background-color: @base_color; 
+	color:  @disabled_fg_color;
+	border-style:solid;
+	border-width:2px;
+	border-top-color:	@tab_bevel_highlight;
+	border-right: 0px;
+	border-bottom-color:	@tab_bevel_shadow;
+	border-left-color:	@tab_bevel_highlight;
+	border-radius: 6px 0 0 5px;  /* JWT:STRANGLY SEEMS TO LOOK BETTER UNEVEN (IN HIGHLIGHT TO SHADOW TRANSITION)?! */
+}
+
+notebook header.bottom tab:not(:checked) 
+{
+	margin: 0 0 2px 0;
+	padding-bottom: 4px;
+	background-color: @tab_nonselected_background;
+	border-top:	0px;
+	border-right-color:	@tab_bevel_shadow;
+	border-bottom-color:	@tab_bevel_shadow;
+	border-left-color: @tab_bevel_highlight;
+}
+notebook header.bottom tab
+{
+	margin: -2px 0 2px 0;  /* ORDER:  T+v R+< B+^ L+> */
+	padding-left: 5px;
+	padding-right: 5px;
+	background-color: @tab_selected_background; 
+	border-style:solid;
+	border-width:2px;
+	border-top:	0px;
+	border-right-color:	@tab_bevel_shadow;
+	border-bottom-color:	@tab_bevel_shadow;
+	border-left-color:	@tab_bevel_highlight;
+	border-radius: 0 0 6px 7px;  /* JWT:STRANGLY SEEMS TO LOOK BETTER UNEVEN (IN HIGHLIGHT TO SHADOW TRANSITION)?! */
+}
+notebook header.bottom tab:hover 
+{
+	background-color: @tab_hover_background; 
+	border-style:solid;
+	border-top:	0px;
+	border-right-color:	@tab_active_bevel_shadow;
+	border-bottom-color:	@tab_active_bevel_shadow;
+	border-left-color: @tab_active_bevel_highlight;
+}
+notebook header.bottom tab:disabled 
+{
+	background-color: @base_color; 
+	color:  @disabled_fg_color;
+	border-style:solid;
+	border-width:2px;
+	border-top:	0px;
+	border-right-color:	@tab_bevel_shadow;
+	border-bottom-color:	@tab_bevel_shadow;
+	border-left-color:	@tab_bevel_highlight;
+	border-radius: 0 0 6px 7px;  /* JWT:STRANGLY SEEMS TO LOOK BETTER UNEVEN (IN HIGHLIGHT TO SHADOW TRANSITION)?! */
+}
+
+notebook header.top tab:not(:checked) 
+{
+	margin: 2px 0 0 0;  /* ORDER:  T+v R+< B+^ L+> */
+	padding-top: 3px;
+	background-color: @tab_nonselected_background;
+	border-top-color:	@tab_bevel_highlight;
+	border-right-color:	@tab_bevel_shadow;
+	border-bottom:	0px;
+	border-left-color:	@tab_bevel_highlight;
+}
+notebook header.top tab
+{
+	margin: 2px 0 -2px 0;  /* ORDER:  T+v R+< B+^ L+> */
+	padding-left: 5px;
+	padding-right: 5px;
+	background-color: @tab_selected_background; 
+	border-style:solid;
+	border-width:2px;
+	border-top-color:	@tab_bevel_highlight;
+	border-right-color:	@tab_bevel_shadow;
+	border-bottom:	0px;
+	border-left-color:	@tab_bevel_highlight;
+	border-radius: 6px 7px 0 0;  /* JWT:STRANGLY SEEMS TO LOOK BETTER UNEVEN (IN HIGHLIGHT TO SHADOW TRANSITION)?! */
+}
+notebook header.top tab:hover 
+{
+	background-color: @tab_hover_background; 
+	border-style: solid;
+	border-top-color:	@tab_active_bevel_highlight;
+	border-right-color:	@tab_active_bevel_shadow;
+	border-bottom: 0px;
+	border-left-color:	@tab_active_bevel_highlight;
+}
+notebook header.top tab:disabled 
+{
+	background-color: @base_color; 
+	color:  @disabled_fg_color;
+	border-style:solid;
+	border-width:2px;
+	border-top-color:	@tab_bevel_highlight;
+	border-right-color:	@tab_bevel_shadow;
+	border-bottom:	0px;
+	border-left-color:	@tab_bevel_highlight;
+	border-radius: 6px 7px 0 0;  /* JWT:STRANGLY SEEMS TO LOOK BETTER UNEVEN (IN HIGHLIGHT TO SHADOW TRANSITION)?! */
+}
+
+notebook > stack:not(:only-child) 
+{
+	background-color: @tab_selected_background; 
+	border-style:solid;
+	border-width:2px;
+	border-top-color:	@tab_bevel_highlight;
+	border-left-color:	@tab_bevel_highlight;
+	border-right-color:	@tab_bevel_shadow;
+	border-bottom-color:	@tab_bevel_shadow;
+}
+
+
+/*arrows for going left/right if there are more tabs than fit in the header*/
+notebook > header.right > tabs > arrow {
+	margin: 0 2px 0 0;  /* ORDER:  T+v R+< B+^ L+> */
+	border-top-color:	@tab_active_bevel_highlight;
+	border-right-color:	@tab_active_bevel_shadow;
+	border-bottom-color:	@tab_active_bevel_shadow;
+	border-left-color:	@tab_active_bevel_highlight;
+	background-color:	@tab_nonselected_background;
+	border-style: 		solid;
+	border-width: 		2px;
+	min-width:		20px;
+	min-height:		20px;
+	background-size: 12px 13px;
+	background-repeat: no-repeat;
+	background-position: center;
+	color:transparent;
+}
+notebook > header.right > tabs > arrow.up {
+	background-image:url("../img/menuitem-arrow-up.png");
+}
+notebook > header.right > tabs > arrow.down {
+	background-image:url("../img/menuitem-arrow-down.png");
+}
+notebook > header.right > tabs > arrow.up:hover {
+	background-color: @lighter_color;
+}
+notebook > header.right > tabs > arrow.down:hover {
+	background-color: @lighter_color;
+}
+notebook > header.right > tabs > arrow.up:disabled {
+	background-image:url("../img/menuitem-arrow-up-disabled.png");
+}
+notebook > header.right > tabs > arrow.down:disabled {
+	background-image:url("../img/menuitem-arrow-down-disabled.png");
+}
+
+notebook > header.left > tabs > arrow {
+	margin: 0 0 0 2px;  /* ORDER:  T+v R+< B+^ L+> */
+	border-top-color:	@tab_active_bevel_highlight;
+	border-right-color:	@tab_active_bevel_shadow;
+	border-bottom-color:	@tab_active_bevel_shadow;
+	border-left-color:	@tab_active_bevel_highlight;
+	background-color:	@tab_nonselected_background;
+	border-style: 		solid;
+	border-width: 		2px;
+	min-width:		20px;
+	min-height:		20px;
+	background-size: 12px 13px;
+	background-repeat: no-repeat;
+	background-position: center;
+	color:transparent;
+}
+notebook > header.left > tabs > arrow.up {
+	background-image:url("../img/menuitem-arrow-up.png");
+}
+notebook > header.left > tabs > arrow.down {
+	background-image:url("../img/menuitem-arrow-down.png");
+}
+notebook > header.left > tabs > arrow.up:hover {
+	background-color: @lighter_color;
+}
+notebook > header.left > tabs > arrow.down:hover {
+	background-color: @lighter_color;
+}
+notebook > header.left > tabs > arrow.up:disabled {
+	background-image:url("../img/menuitem-arrow-up-disabled.png");
+}
+notebook > header.left > tabs > arrow.down:disabled {
+	background-image:url("../img/menuitem-arrow-down-disabled.png");
+}
+
+notebook > header.bottom > tabs > arrow {
+	margin: 0 0 2px 0;  /* ORDER:  T+v R+< B+^ L+> */
+	border-top-color:	@tab_active_bevel_highlight;
+	border-right-color:	@tab_active_bevel_shadow;
+	border-bottom-color:	@tab_active_bevel_shadow;
+	border-left-color:	@tab_active_bevel_highlight;
+	background-color:	@tab_nonselected_background;
+	border-style: 		solid;
+	border-width: 		2px;
+	min-width:		20px;
+	min-height:		20px;
+	background-size: 12px 13px;
+	background-repeat: no-repeat;
+	background-position: center;
+	color:transparent;
+}
+notebook > header.bottom > tabs > arrow.up {
+	background-image:url("../img/menuitem-arrow-right.png");
+}
+notebook > header.bottom > tabs > arrow.down {
+	background-image:url("../img/menuitem-arrow-left.png");
+}
+notebook > header.bottom > tabs > arrow.up:hover {
+	background-color: @lighter_color;
+}
+notebook > header.bottom > tabs > arrow.down:hover {
+	background-color: @lighter_color;
+}
+notebook > header.bottom > tabs > arrow.up:disabled {
+	background-image:url("../img/menuitem-arrow-right-disabled.png");
+}
+notebook > header.bottom > tabs > arrow.down:disabled {
+	background-image:url("../img/menuitem-arrow-left-disabled.png");
+}
+
+notebook > header.top > tabs > arrow {
+	margin: 2px 0 0 0;  /* ORDER:  T+v R+< B+^ L+> */
+	border-top-color:	@tab_active_bevel_highlight;
+	border-right-color:	@tab_active_bevel_shadow;
+	border-bottom-color:	@tab_active_bevel_shadow;
+	border-left-color:	@tab_active_bevel_highlight;
+	background-color:	@tab_nonselected_background;
+	border-style: 		solid;
+	border-width: 		2px;
+	min-width:		20px;
+	min-height:		20px;
+	background-size: 12px 13px;
+	background-repeat: no-repeat;
+	background-position: center;
+	color:transparent;
+}
+notebook > header.top > tabs > arrow.up {
+	background-image:url("../img/menuitem-arrow-right.png");
+}
+notebook > header.top > tabs > arrow.down {
+	background-image:url("../img/menuitem-arrow-left.png");
+}
+notebook > header.top > tabs > arrow.up:hover {
+	background-color: @lighter_color;
+}
+notebook > header.top > tabs > arrow.down:hover {
+	background-color: @lighter_color;
+}
+notebook > header.top > tabs > arrow.up:disabled {
+	background-image:url("../img/menuitem-arrow-right-disabled.png");
+}
+notebook > header.top > tabs > arrow.down:disabled {
+	background-image:url("../img/menuitem-arrow-left-disabled.png");
+}
+
+
+/*buttons on a non active tab appear flat eg in xfce terminal*/
+tab,
+tab button
+{
+	/*inset*/
+	border-top-color:	@tab_nonselected_background;
+	border-left-color:	@tab_nonselected_background;
+	border-right-color:	@tab_nonselected_background;
+	border-bottom-color:	@tab_nonselected_background;
+	background-color:	@tab_nonselected_background;
+	color:			@softerForeground;
+	border-style: 		solid;
+	border-width: 		1px;
+	padding:		2px 4px 2px 4px;
+}
+tab:checked,
+tab:checked button
+{
+	/*outset*/
+	border-top-color:	@tab_active_bevel_highlight;
+	border-left-color:	@tab_active_bevel_highlight;
+	border-right-color:	@tab_active_bevel_shadow;
+	border-bottom-color:	@tab_active_bevel_shadow;
+	background-color:	@tab_selected_background;
+	color:			@softerForeground;
+	border-style: 		solid;
+	border-width: 		1px;
+	padding:		2px 4px 2px 4px;
+}
+
+frame {
+    background-color: @frame_background;
+    border-left: 1px solid  @frame_bevel_shadow;
+    border-top: 1px solid  @frame_bevel_shadow;
+    border-right: 1px solid @frame_bevel_highlight;
+    border-bottom: 1px solid @frame_bevel_highlight;
+    padding: 0px;
+}
+
+
+/**********************************************/
+/* list, row */
+/**********************************************/
+
+list {
+    border-left: 1px solid @bevel_shadow;
+    border-top: 1px solid @bevel_shadow;
+    border-right: 1px solid @bevel_highlight;
+    border-bottom: 1px solid @bevel_highlight;
+    padding: 7px;
+    background-color: @trough_color;
+}
+
+list row {
+    background-color: @darker_themed_color;
+    padding: 5px;
+    border: none;
+}
+
+list row:selected {
+    background-color: @listitem_selected_bg_color;
+    color: @listitem_selected_fg_color;
+}
+
+list row:active {
+    background-color: @lighter_color;
+}
+
+list row:disabled {
+    background-color: @base_color;
+    color: @disabled_fg_color;
+}
+
+treeview {
+    background-color: @base_color;
+}
+
+treeview *:selected {
+    background-color: @listitem_selected_bg_color;
+    color: @listitem_selected_fg_color;
+    border-left: 1px solid @bevel_highlight;
+    border-top: 1px solid @bevel_highlight;
+    border-right: 1px solid @bevel_shadow;
+    border-bottom: 1px solid @bevel_shadow;
+}
+
+/* UNCOMMENT TO SHOW CURSOR HOVER OVER ROWS: 
+treeview:hover {
+    background-color: @maybelesslighter_color;
+    color: @listitem_selected_fg_color;
+}
+
+treeview button:hover {
+    background-color: @maybelesslighter_color;
+    color: @listitem_selected_fg_color;
+}
+*/
+
+treeview:disabled {
+    background-color: @base_color;
+    color: @disabled_fg_color;
+}
+
+/**********************************************/
+/* separator */
+/**********************************************/
+
+separator.vertical {
+        margin: 0px;
+        padding: 0px;
+        border-left: 1px solid @inset_darker_color;
+        border-right: 1px solid @darker_themed_color;
+}
+
+separator.horizontal {
+        margin: 0px;
+        padding: 0px;
+        border-top: 1px solid @inset_darker_color;
+        border-bottom: 1px solid @darker_themed_color;
+}
+
+toolbar separator {
+        margin: 5px;
+        margin-top: 7px;
+        margin-bottom: 7px;
+        border-left: 1px solid @inset_darker_color;
+        border-right: 1px solid @darker_themed_color;
+}
+
+menu separator {
+        margin: 0px;
+        padding: 0px;
+        border-top: 1px solid @inset_darker_color;
+        border-bottom: 1px solid @darker_themed_color;
+}
+
+/* JWT:REPLACED BY SEPARATOR CONFIG FROM cdetheme (WHICH ARE MORE Tk-LIKE)!:
+paned.vertical separator {
+    border: none;
+        padding: 0px;
+    background-image: url("../img/separator_horizontal.png");
+    background-position: center center;
+        background-repeat: no-repeat;
+}
+
+paned.horizontal separator {
+    border: none;
+        padding: 0px;
+    background-image: url("../img/separator_vertical.png");
+    background-position: center center;
+        background-repeat: no-repeat;
+}
+*/
+
+/*movable separator between widgets eg like between the gimp tools.*/
+/*In cde, this is a separator line and a little button on top of that*/
+/*(horizontal: on the right, vertical: on the bottom)*/
+/*To make this, eg in horizontal case, I have a transparent image of*/
+/*16x12 with the double horizontal line (bottomshadow/topshadow)  in */
+/*the center. The transparent pixels are for padding. This way the */
+/*button image can be put on top, without the horizontal line scaling*/
+/*to the entire width of the button. The button also has transparent*/
+/*pixels on the right for padding (and left also if we change our mind later).*/
+/*The background pos. can then be set to 'right'.*/
+/*Note that the min-height of the separator has to be a bit smaller than */
+/*the background image height, otherwise we see some repeating in the*/
+/*vertical direction too, whereas for the horizontal separtor we only want*/
+/*repeating in the x direction.*/
+/*Also the parity of the button and separator minheight must be the same*/
+/*for centering to work properly (and not be drawn on half pixel and be drawn fuzzy)*/
+/*Vertical separator similarly*/
+/*__panedseparators */
+/*this separator is HORIZONTAL */
+
+ paned.vertical > separator {
+	background-image:	url("../img/handleButtonHorizontal.png"),	url("../img/handleSeparatorHorizontal.png");
+	background-repeat: 	no-repeat, 						repeat;
+	background-size: 	24px 8px, 						16px,8px;
+	background-position: 	right,							center;
+	min-height: 10px;
+}
+ paned.horizontal > separator {
+	background-image:	url("../img/handleButtonVertical.png"),	url("../img/handleSeparatorVertical.png");
+	background-repeat: 	no-repeat, 						repeat;
+	background-size: 	8px 24px, 						8px,16px;
+	background-position: 	bottom,							center;
+	min-width: 10px;
+}
+
+
+/* separator in nautilus side panel */
+/* JWT:REPLACED BY SEPARATOR CONFIG FROM cdetheme (WHICH ARE MORE Tk-LIKE)!:
+paned list separator.horizontal {
+        min-height:1px;
+    background-image: none;
+    border: none;
+        border-top: 1px solid @base_color;
+}
+*/
+
+/**********************************************/
+/* check, radio */
+/**********************************************/
+
+checkbutton, radiobutton {
+    color: @text_fg_color;
+    background-color: @base_color;
+}
+
+/*notebook checkbutton, notebook radiobutton {
+    background-color: @darker_themed_color;
+}*/
+
+checkbutton:disabled, radiobutton:disabled {
+    color: @darker_themed_color;
+}
+
+check {
+    padding: 0px;
+    border: none;
+    margin: 5px;
+    min-width: 13px;
+    min-height: 13px;
+        -gtk-icon-source: url("../img/check-unchecked-tk.png");
+}
+
+check:checked {
+        -gtk-icon-source: url("../img/check-checked-tk.png");
+}
+
+radio {
+    padding: 0px;
+    border: none;
+    margin: 5px;
+    min-width: 13px;
+    min-height: 13px;
+        -gtk-icon-source: url("../img/radio-unchecked-tk.png");
+}
+
+radio:checked {
+    min-width: 13px;
+    min-height: 13px;
+        -gtk-icon-source: url("../img/radio-checked-tk.png");
+}
+
+check:disabled {
+    min-width: 13px;
+    min-height: 13px;
+        -gtk-icon-source: url("../img/check-disabled-unchecked-tk.png");
+}
+
+radio:disabled {
+    min-width: 13px;
+    min-height: 13px;
+        -gtk-icon-source: url("../img/radio-disabled-unchecked-tk.png");
+}
+
+check:disabled:checked {
+        -gtk-icon-source: url("../img/check-disabled-checked-tk.png");
+    min-width: 13px;
+    min-height: 13px;
+}
+
+radio:disabled:checked {
+        -gtk-icon-source: url("../img/radio-disabled-checked-tk.png");
+    min-width: 13px;
+    min-height: 13px;
+}
+
+/* check and radio in menu */
+menuitem check, menuitem radio {
+        -gtk-icon-source: url("../img/menuitem-transparent.png");
+    min-width: 8px;
+    min-height: 7px;
+}
+
+menuitem check:checked {
+        -gtk-icon-source: url("../img/menuitem-check-checked.png");
+    min-width: 8px;
+    min-height: 7px;
+}
+
+menuitem check:disabled:checked {
+        -gtk-icon-source: url("../img/menuitem-check-checked-disabled.png");
+    min-width: 8px;
+    min-height: 7px;
+}
+
+menuitem radio:checked {
+    min-width: 5px;
+    min-height: 5px;
+        -gtk-icon-source: url("../img/menuitem-radio-checked.png");
+}
+
+menuitem radio:disabled:checked {
+    min-width: 5px;
+    min-height: 5px;
+        -gtk-icon-source: url("../img/menuitem-radio-checked-disabled.png");
+}
+
+/* handbrake/defaults audio; tweaktools/bureau*/
+list row checkbutton, list row radiobutton {
+    background-color: transparent;
+    color: @text_fg_color;
+}
+
+/* handbrake/defaults audio; tweaktools/bureau */
+list row checkbutton label:disabled,
+list row radiobutton label:disabled,
+list row check:disabled,
+list row radio:disabled {
+    background-color: transparent;
+    color: @darker_color;
+    min-width: 13px;
+    min-height: 13px;
+        -gtk-icon-source: url("../img/radio-disabled-unchecked-tk.png");
+}
+
+
+/**********************************************/
+/* popover */
+/**********************************************/
+
+popover {
+    border-left: 2px solid @outset_active_color;
+    border-top: 2px solid @outset_active_color;
+    border-right: 2px solid @text_fg_color;
+    border-bottom: 2px solid @text_fg_color;
+}
+
+popover modelbutton {
+        padding: 0px;
+        padding-top: 2px;
+        padding-bottom: 2px;
+}
+
+popover modelbutton:hover, popover modelbutton:active {
+    background-color: @menuitem_selected_bg_color;
+    color: @menuitem_selected_fg_color;
+}
+
+/**********************************************/
+/* switch */
+/**********************************************/
+
+switch {
+    font-weight: bold;
+    background-color: @base_color;
+    color: @text_fg_color;
+    border-left: 2px solid @bevel_shadow;
+    border-top: 2px solid @bevel_shadow;
+    border-right: 2px solid @bevel_highlight;
+    border-bottom: 2px solid @bevel_highlight;
+}
+
+switch:checked {
+   background-color: @tk_disabledForeground;
+    border-left: 2px solid @button_activeBevelShadow;
+    border-top: 2px solid @button_activeBevelShadow;
+    border-right: 2px solid @button_activeBevelHighlight;
+    border-bottom: 2px solid @button_activeBevelHighlight;
+}
+
+switch slider {
+    background-color: @darker_themed_color;
+    padding: 1px;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-image: url("../img/scrollbar_thumb.png");
+    border-left: 2px solid @bevel_highlight;
+    border-top: 2px solid @bevel_highlight;
+    border-right: 2px solid @bevel_shadow;
+    border-bottom: 2px solid @bevel_shadow;
+}
+
+switch slider:hover {
+    background-color: @lighter_color;
+}
+
+/* JWT:DOESN'T WORK FOR SOME REASON?!:
+switch slider:active {
+    border-left: 2px solid @bevel_shadow;
+    border-top: 2px solid @bevel_shadow;
+    border-right: 2px solid @bevel_highlight;
+    border-bottom: 2px solid @bevel_highlight;
+}
+*/
+
+switch:disabled {
+    background-color: @base_color;
+    color: @disabled_fg_color;
+    border: 2px solid @base_color;
+}
+
+
+spinbutton:disabled {
+    color: @disabled_fg_color;
+}
+
+/**********************************************/
+/* arrow */
+/**********************************************/
+
+combobox arrow {  
+        min-height: 19px;
+        min-width: 19px;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-image: url("../img/combobox-arrow-down.png");
+}
+
+combobox arrow:disabled {  
+    background-image: url("../img/combobox-arrow-down-disabled.png");
+}
+
+menuitem arrow {
+        min-height: 15px;
+        min-width: 8px;
+        margin-left: 15px; /* brasero */
+        -gtk-icon-source: url("../img/menuitem-arrow-right.png");
+}
+
+menuitem arrow:disabled {
+        -gtk-icon-source: url("../img/menuitem-arrow-right-disabled.png");
+}
+
+expander arrow {
+        min-width: 16px;
+        min-height: 16px;
+        -gtk-icon-source: -gtk-icontheme("pan-down-symbolic");
+        -gtk-icon-transform: rotate(-90deg);
+        color: @text_fg_color;
+}
+
+expander arrow:checked {
+        -gtk-icon-transform: unset;
+}
+
+popover arrow.right {
+        min-height: 15px;
+        min-width: 8px;
+        -gtk-icon-source: url("../img/menuitem-arrow-right.png");
+}
+
+popover arrow.left {
+        min-height: 15px;
+        min-width: 8px;
+        -gtk-icon-source: url("../img/menuitem-arrow-left.png");
+}
+
+/**********************************************/
+/* calendar */
+/**********************************************/
+
+calendar {
+    background-color: @darker_themed_color;
+    color: @text_fg_color;
+}
+
+calendar:selected {
+    background-color: @listitem_selected_bg_color;
+    color: @listitem_selected_fg_color;
+}
+
+calendar:indeterminate {
+    color: @inset_active_color;
+}
+
+/**********************************************/
+/* tweaks */
+/**********************************************/
+
+/* selection in evince */
+/*
+.view:selected  {
+    background-color: @text_selected_bg_color;
+    color: @text_selected_fg_color;
+    border-left: 1px solid @bevel_highlight;
+    border-top: 1px solid @bevel_highlight;
+    border-bottom: 1px solid @bevel_shadow;
+    border-right: 1px solid @bevel_shadow;
+}
+*/
+
+/* icon color selected and unfocused in nautilus */
+/*
+.view:active {
+     background-color: yellow;
+     color: blue
+}
+*/
+
+
+/* avoid borders on the desktop when managed by nautilus */
+nautilus-desktop-window * {
+  border: none;
+}
+
+/* flotting-bar in nautilus */
+.floating-bar {
+     background-color: @darker_color;
+     color: @foreground_color;
+}
+
+/* icons in sidebar in nautilus */
+.sidebar-icon {
+    padding-right: 2px;
+}
+
+/* selections in firefox use fix color names ! */
+/* fix background selected item unfocused in hugin: to test for consistency */
+#MozillaGtkWidget *:selected:focus {
+    background-color: @text_selected_bg_color;
+    color: @text_selected_fg_color;
+    border-left: 1px solid @bevel_highlight;
+    border-top: 1px solid @bevel_highlight;
+    border-bottom: 1px solid @bevel_shadow;
+    border-right: 1px solid @bevel_shadow;
+}
+
+/* thunderbird: item selected in list */
+/* ne semble plus être utile au 14 fev 2019 */
+/*
+.view:selected {
+    background-color: @listitem_selected_bg_color;
+    color: @listitem_selected_fg_color;
+}
+*/
+
+/* background and selection in icon view in caja (mrnhmath) */
+.caja-notebook .view {
+    background-color: @base_color;
+}
+.caja-notebook .view:selected,
+.caja-notebook .view:selected:focus
+{
+    background-color: @darker_color;
+}
+.caja-notebook .rubberband {
+    background-color: transparent;
+}
+
+/* background of nautilus icon window */
+/*.nautilus-window, .nautilus-window notebook {
+  background-color: @active_color;
+}*/
+
+/* zebra strips do not work with recent versions */
+/*view row:nth-child(even) {
+        background-color: green;
+} 
+treeview row:nth-child(even)
+{
+        background-color: green;
+} 
+*/
+
+/*
+GtkTreeView row:even {
+        background-color: red;
+}                                                                  
+
+GtkTreeView row:odd {
+        background-color: green;
+}
+*/
+ 
+/*
+GTK_DEBUG=interactive myexcutable
+*/
+
+
+/**********************************************/
+/* The End */
+/**********************************************/

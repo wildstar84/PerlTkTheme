@@ -1,0 +1,54 @@
+Installation from GitHub is fairly simple.  First:
+
+1)  mkdir /home/<username>/.themes/PerlTkTheme
+
+2)  git clone https://github.com/wildstar84/PerlTkTheme.git /home/<username>/.themes/PerlTkTheme/
+
+3)  cd /home/<username>/.themes/PerlTkTheme
+
+4)  Run the handy color-configurator script:  ./configure
+
+	This will ask you for a color-name or number (#xxxxxx) for your desired 
+base default background color.  It will generate both GTK-3 and GTK-2 versions 
+of the theme.  Note:  You can easily rerun this script at any time and it will 
+change the theme's colors to the new colors automatically when you launch new 
+apps.  It also saves the new color-scheme theme files as (gtk.css.color (GTK-3) 
+and gtkrc.color (GTK-2)), backs up your previous ones as gtk.css.backup and 
+gtkrc.backup.  It them symlinks the theme files (gtk.css and gtkrc) to the 
+corresponding ones of the new colors.  It does NOT change your system theme 
+setup (ie from another theme to PerlTkTheme).  You must do that (one-time) 
+manually as follows:
+
+5)  For gtk-3, edit your /home/<username>/.config/gtk-3.0/settings.ini (OR 
+use whatever GUI or method your system uses for changing GTK-3 themes) and 
+add the line:  "gtk-theme-name=PerlTkTheme" and comment out the corresponing 
+line that says:  "gtk-theme-name=YourCurrentThemeName".
+
+    For gtk-2, edit your /home/<username>/.gtkrc-2.0 file (OR use whatever GUI 
+or method your system uses for changing GTK-2 themes) and add the line:  
+"gtk-theme-name="PerlTkTheme"" and comment out the corresponding line that 
+says:  ""gtk-theme-name="YourCurrentThemeName""  (note the quotes around the 
+theme-name!
+
+6)  For Qt apps, you will need to use a program called "qt5ct", which 
+hopefully is in your distro's repositories, run it (a GUI), set the "Style" 
+to "gtk2" (gtk3 is not currently supported afaik), and add an environment 
+variable in your window-manager startup:  "export QT_QPA_PLATFORMTHEME=qt5ct", 
+and your Qt apps should now use the GTK-2 version of the theme.
+
+At this point, you should be all set to launch GTK-3, GTK-2, and Qt apps using 
+your new theme and colors! looking (very similar to) your Perl/Tk and 
+TCL/TK apps!
+
+I recommend this method of installation (as a user-theme, as opposed to a 
+system-theme), since:  1) It supports nearly unlimited different color-palettes 
+(unlike most GTK themes which take the Henry Ford approach of "any color you 
+want as long as it's dark or light gray") and other users may not like having 
+this colorful retro theme imposed on them; and 2) I would expect most users to 
+wish to have different user accounts themed in different colors, or even 
+different themes (If PerlTkTheme is a system-theme, it will have the same color 
+palette for all users, and only ROOT can change them).  If you want to install 
+as a system theme, you'll need to instead install it in /usr/share/themes/ 
+(as ROOT) instead of /home/<username>/.themes/ .
+
+Enjoy!
