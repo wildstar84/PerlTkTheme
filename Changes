@@ -2,6 +2,11 @@
 	* Take Jean-Pierre Bucciol's "OneStepBack" theme 
 	(http://www.vide.memoire.free.fr/perso/OneStepBack/onestepback.php),
 	add a few tweak ideas from Jos Vanriswic's CDETHEME 
-	(https://www.gnome-look.org/p/1231025) and modify lots of things to get it 
+	(https://www.gnome-look.org/p/1231025) and modify lots of things to get it  
 	to look as close as possible to my Perl/Tk apps, touch up the docs, and 
 	release to GitHub on an unsuspecting world.
+1.01 2023/08/04
+	* GTK-3: Add a section for "textview text" in order to properly set 
+	background color to base-color (instead of white) in meld app's file-
+	comparisen pages.  (meld is a GTK-3 GUI file/directory comparisen app.) 
+	the author uses often.

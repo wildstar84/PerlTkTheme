@@ -837,6 +837,12 @@ textview {
     color: @text_fg_color;
 }
 
+/* JWT:NEEDED BY meld!: */
+textview text {
+    background-color: @base_color;
+    color: @text_fg_color;
+}
+
 iconview {
     background-color: @base_color;
     color: @text_fg_color;
